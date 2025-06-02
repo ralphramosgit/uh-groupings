@@ -524,3 +524,34 @@ export const getGroupingMembersWhereListed = async (
     const endpoint = `${baseUrl}/groupings/${groupingPath}/where-listed`;
     return postRequest<GroupingMembers>(endpoint, currentUser.uid, uhIdentifiers);
 };
+
+/*
+  Get if members exist in include
+ */
+export const getMembersExistInInclude = async (
+  groupingPath: string,
+  uhIdentifiers: string[]
+): Promise<GroupingMembers> => {
+    z.object({ uhIdentifiers: z.array(z.string()), groupingPath: z.string() }).parse({ uhIdentifiers, groupingPath });
+    const currentUser = await getUser();
+    const endpoint = `${baseUrl}/groupings/${groupingPath}/include-members/in-list`;
+    return postRequest<GroupingMembers>(endpoint, currentUser.uid, uhIdentifiers);
+}
+export const getMembersExistInExclude = async (
+  groupingPath: string,
+  uhIdentifiers: string[]
+): Promise<GroupingMembers> => {
+  z.object({ uhIdentifiers: z.array(z.string()), groupingPath: z.string() }).parse({ uhIdentifiers, groupingPath });
+  const currentUser = await getUser();
+  const endpoint = `${baseUrl}/groupings/${groupingPath}/exclude-members/in-list`;
+  return postRequest<GroupingMembers>(endpoint, currentUser.uid, uhIdentifiers);
+}
+export const getMembersExistInOwners = async (
+  groupingPath: string,
+  uhIdentifiers: string[]
+): Promise<GroupingMembers> => {
+  z.object({ uhIdentifiers: z.array(z.string()), groupingPath: z.string() }).parse({ uhIdentifiers, groupingPath });
+  const currentUser = await getUser();
+  const endpoint = `${baseUrl}/groupings/${groupingPath}/owners/in-list`;
+  return postRequest<GroupingMembers>(endpoint, currentUser.uid, uhIdentifiers);
+}
