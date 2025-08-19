@@ -102,10 +102,6 @@ const GroupingMembersTable = ({
 
     // Fetch number of grouping members.
     const groupPath = group ? groupingPath + ':' + group : groupingPath;
-    // const { data: rowCount = Infinity, isPending: isRowCountPending} = useQuery({
-    //     queryKey: [groupPath, 'rowCount'],
-    //     queryFn: () => getNumberOfGroupingMembers(groupPath)
-    // });
 
     const {
         data: rowCount = 0,
@@ -133,23 +129,19 @@ const GroupingMembersTable = ({
         queryFn: () => getGroupingMembersWhereListed(groupingPath, uhUuids).then((res) => res.members)
     });
 
-    // Member Removal
+    // List Management (Member Removal).
     const [isRemoveMemberModalOpen, setIsRemoveMemberModalOpen] = useState(false);
     const [isRemoveMembersModalOpen, setIsRemoveMembersModalOpen] = useState(false);
     const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
     const [memberToRemove, setMemberToRemove] = useState<GroupingGroupMembers['members'][0]>(null);
     const [membersToRemove, setMembersToRemove] = useState<GroupingGroupMembers['members']>([]);
-    const [membersNotInList, setMembersNotInList] = useState<GroupingGroupMembers['members']>([]);
     const [membersToRemoveCount, setMembersToRemoveCount] = useState(0);
     const [manageType, setManageType] = useState<string>('');
     const router = useRouter();
     const [rowSelection, setRowSelection] = useState({});
+    const [isPerformingRemoval, setIsPerformingRemoval] = useState(false);
 
-    const handleOpenRemoveMemberModal = (
-        membersInList: GroupingGroupMembers['members'],
-        membersNotInList: string[]
-    ) => {
-        console.log('length:', membersInList.length);
+    const handleOpenRemoveMemberModal = (membersInList: GroupingGroupMembers['members']) => {
         if (membersInList.length === 1) {
             const member = membersInList[0];
             const validUid = member.uid?.trim() ? member.uid : 'N/A';
@@ -168,16 +160,12 @@ const GroupingMembersTable = ({
             });
             setIsRemoveMemberModalOpen(true);
             setMembersToRemoveCount(1);
-            setMembersNotInList(membersNotInList as GroupingGroupMembers['members']);
         } else {
             console.error('handleOpenRemoveMemberModal expects exactly one member.');
         }
     };
 
-    const handleOpenRemoveMembersModal = (
-        membersInList: GroupingGroupMembers['members'],
-        membersNotInList: GroupingGroupMembers['members']
-    ) => {
+    const handleOpenRemoveMembersModal = (membersInList: GroupingGroupMembers['members']) => {
         const validMembers = membersInList.map((member) => {
             const validUid = !member.uid || member.uid.trim() === '' ? 'N/A' : member.uid;
             return {
@@ -195,21 +183,22 @@ const GroupingMembersTable = ({
         });
 
         setMembersToRemove(validMembers);
-        setMembersNotInList(membersNotInList);
         setMembersToRemoveCount(validMembers.length);
         setIsRemoveMembersModalOpen(true);
     };
 
+    // Handle successful removal of a member or members.
     const handleRemoveMemberSuccess = () => {
-        console.log('Remove member success triggered');
         setManageType('removeMembers');
         setIsRemoveMemberModalOpen(false);
         setIsRemoveMembersModalOpen(false);
+        setIsPerformingRemoval(false);
         setIsSuccessModalOpen(true);
-        console.log(isSuccessModalOpen);
     };
 
     const [isRefreshing, setIsRefreshing] = useState(false);
+
+    // Handle closing the success modal and refreshing the member list.
     const handleCloseSuccessModal = () => {
         setIsSuccessModalOpen(false);
         setIsRefreshing(true);
@@ -217,6 +206,7 @@ const GroupingMembersTable = ({
             refetchRowCount().then(() => {
                 router.refresh();
                 setRowSelection({});
+                setSelectedMembers({});
                 setMemberToRemove(null);
                 setTimeout(() => {
                     setIsRefreshing(false);
@@ -246,19 +236,17 @@ const GroupingMembersTable = ({
                 }
             });
 
-            console.log('Updated Selected Members:', newSelectedMembers);
             return newSelectedMembers;
         });
     };
 
+    // Reset selection when groupingPath, group, or globalFilter changes.
     useEffect(() => {
         setRowSelection({});
         setSelectedMembers({});
     }, [groupingPath, group, globalFilter]);
 
     const checkedMembers = Object.values(selectedMembers);
-
-    console.log('Checked Members:', checkedMembers);
 
     const table = useReactTable({
         columns: GroupingMembersTableColumns(
@@ -295,7 +283,6 @@ const GroupingMembersTable = ({
                 <div className="flex flex-col md:flex-row md:justify-between">
                     <h1 className="flex font-bold text-[32px] capitalize">
                         {group ?? 'All Members'}
-                        {/*{!(isRowCountPending || isRefreshing) ? `(${rowCount})` : <Spinner size="sm" show={true} className="text-black stroke-[3.0]" />}*/}
                         <span className="ml-2 flex items-center">
                             <span>({rowCount})</span>
                             {(isRowCountPending || isRefreshing) && (
@@ -326,9 +313,11 @@ const GroupingMembersTable = ({
                                       ${header.id === 'select' ? 'w-[10%] sm:w-12' : ''}
                                       ${
                                           header.id === 'name'
-                                              ? ['include', 'exclude'].includes(group || '')
-                                                  ? 'w-[35%] md:w-2/5 overflow-hidden'
-                                                  : 'w-[30%]'
+                                              ? group === 'owners'
+                                                  ? 'w-[65%] overflow-hidden'
+                                                  : ['include', 'exclude'].includes(group || '')
+                                                    ? 'w-[35%] md:w-2/5 overflow-hidden'
+                                                    : 'w-[30%]'
                                               : ''
                                       }
                                       ${
@@ -374,9 +363,11 @@ const GroupingMembersTable = ({
                                       ${cell.column.id === 'select' ? 'w-[10%] px-4 sm:w-12' : ''}
                                       ${
                                           cell.column.id === 'name'
-                                              ? ['include', 'exclude'].includes(group || '')
-                                                  ? 'w-[35%] md:w-2/5 overflow-hidden'
-                                                  : 'w-[30%]'
+                                              ? group === 'owners'
+                                                  ? 'w-[65%] overflow-hidden'
+                                                  : ['include', 'exclude'].includes(group || '')
+                                                    ? 'w-[35%] md:w-2/5 overflow-hidden'
+                                                    : 'w-[30%]'
                                               : ''
                                       }
                                       ${
@@ -417,6 +408,7 @@ const GroupingMembersTable = ({
                     onOpenRemoveMemberModal={handleOpenRemoveMemberModal}
                     onOpenRemoveMembersModal={handleOpenRemoveMembersModal}
                     checkedMembers={checkedMembers}
+                    isPerformingRemoval={isPerformingRemoval}
                 />
             ) : null}
             {memberToRemove && (
@@ -424,10 +416,10 @@ const GroupingMembersTable = ({
                     isOpen={isRemoveMemberModalOpen}
                     onClose={() => setIsRemoveMemberModalOpen(false)}
                     memberToRemove={memberToRemove}
-                    membersNotInList={(membersNotInList || []).map((member) => member.uhUuid)}
                     group={group || 'null'}
                     groupingPath={groupingPath}
                     onSuccess={handleRemoveMemberSuccess}
+                    onProcessing={() => setIsPerformingRemoval(true)}
                 />
             )}
             {membersToRemove && (
@@ -435,10 +427,10 @@ const GroupingMembersTable = ({
                     isOpen={isRemoveMembersModalOpen}
                     onClose={() => setIsRemoveMembersModalOpen(false)}
                     membersToRemove={membersToRemove}
-                    membersNotInList={(membersNotInList || []).map((member) => member.uhUuid)}
                     group={group || 'null'}
                     groupingPath={groupingPath}
                     onSuccess={handleRemoveMemberSuccess}
+                    onProcessing={() => setIsPerformingRemoval(true)}
                 />
             )}
             {isSuccessModalOpen && (

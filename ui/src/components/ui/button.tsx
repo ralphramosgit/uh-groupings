@@ -25,8 +25,9 @@ const buttonVariants = cva(
                 ghost: `hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-slate-50`,
                 link: `text-slate-900 underline-offset-4 hover:underline dark:text-slate-50`,
                 light: `border border-solid border-gray-300 rounded-md bg-white text-text-color`,
-                removal:'bg-[#b05b54] text-slate-50 hover:bg-[darkred] dark:bg-red-900 dark:text-slate-50\n' +
-                  '                    dark:hover:bg-red-900/90`'
+                removal:
+                    'bg-[#b05b54] text-slate-50 hover:bg-[darkred] dark:bg-red-900 dark:text-slate-50\n' +
+                    '                    dark:hover:bg-red-900/90`'
             },
             size: {
                 default: 'h-10 px-2.5 py-2',
@@ -56,4 +57,4 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 );
 Button.displayName = 'Button';
 
-export {Button, buttonVariants};
+export { Button, buttonVariants };

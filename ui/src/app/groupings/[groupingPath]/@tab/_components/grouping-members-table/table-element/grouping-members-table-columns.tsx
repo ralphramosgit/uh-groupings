@@ -8,6 +8,7 @@ import { Trash2Icon } from 'lucide-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTools } from '@fortawesome/free-solid-svg-icons';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { message } from '@/lib/messages';
 
 const GroupingMembersTableColumns = (
     onOpenRemoveMemberModal: (membersInList: GroupingGroupMembers['members'], membersNotInList: string[]) => void,
@@ -15,7 +16,7 @@ const GroupingMembersTableColumns = (
     isPending?: boolean
 ): ColumnDef<GroupingGroupMember | GroupingMember>[] => {
     const columns: ColumnDef<GroupingGroupMember | GroupingMember>[] = [
-        ...(['include', 'exclude', 'owners'].includes(group || '')
+        ...(['include', 'exclude'].includes(group || '')
             ? [
                   {
                       id: 'select',
@@ -41,7 +42,7 @@ const GroupingMembersTableColumns = (
                                                   className="max-w-48 text-center whitespace-normal normal-case font-normal border-none shadow-none"
                                                   side="right"
                                               >
-                                                  See Tools tab to remove entire list
+                                                  {message.Tooltip.SELECT_ALL_LIST}
                                               </TooltipContent>
                                           </Tooltip>
                                       </TooltipProvider>
@@ -87,6 +88,7 @@ const GroupingMembersTableColumns = (
                                                     []
                                                 )
                                             }
+                                            aria-label="Remove Member"
                                             className="text-red-500 hover:text-red-700"
                                         >
                                             <Trash2Icon className="h-4 w-4" />
@@ -94,7 +96,8 @@ const GroupingMembersTableColumns = (
                                     </span>
                                 </TooltipTrigger>
                                 <TooltipContent className="max-w-48 text-center whitespace-normal p-1 !border-none !shadow-none">
-                                    Remove member from the {group} list
+                                    {/*Remove member from the {group} list*/}
+                                    {message.Tooltip.TRASH_ICON_REMOVAL(group || '')}
                                 </TooltipContent>
                             </Tooltip>
                         </TooltipProvider>
@@ -102,10 +105,14 @@ const GroupingMembersTableColumns = (
                 </div>
             )
         },
-        {
-            header: 'UH Number',
-            accessorKey: 'uhUuid'
-        },
+        ...(group !== 'owners'
+            ? [
+                  {
+                      header: 'UH Number',
+                      accessorKey: 'uhUuid'
+                  }
+              ]
+            : []),
         {
             header: 'UH Username',
             accessorKey: 'uid',

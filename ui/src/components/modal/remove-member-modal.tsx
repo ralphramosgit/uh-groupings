@@ -15,55 +15,48 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleQuestion } from '@fortawesome/free-solid-svg-icons';
 import { MemberResult } from '@/lib/types';
 import { removeExcludeMembers, removeIncludeMembers, removeOwners } from '@/lib/actions';
+import { message } from '@/lib/messages';
 
 const RemoveMemberModal = ({
     isOpen,
     onClose,
     memberToRemove,
-    membersNotInList,
     group,
     groupingPath,
-    onSuccess
+    onSuccess,
+    onProcessing
 }: {
     isOpen: boolean;
     onClose: () => void;
     memberToRemove: MemberResult;
-    membersNotInList?: string[];
     group: string;
     groupingPath: string;
     onSuccess: () => void;
+    onProcessing: () => void;
 }) => {
     const handleRemoveMember = async () => {
+        onProcessing();
         try {
             if (memberToRemove && memberToRemove.uid && memberToRemove.name && memberToRemove.uhUuid) {
                 const membersToRemoveFinal = [memberToRemove.uid, memberToRemove.name, memberToRemove.uhUuid];
-                console.log('Prepared removal array:', membersToRemoveFinal);
-                console.log('Grouping Path:', groupingPath);
 
                 switch (group) {
                     case 'include':
-                        console.log('Removing from include members');
                         await removeIncludeMembers(membersToRemoveFinal, groupingPath);
                         break;
                     case 'exclude':
-                        console.log('Removing from exclude members');
                         await removeExcludeMembers(membersToRemoveFinal, groupingPath);
                         break;
                     case 'owners':
-                        console.log('Removing from owners');
                         await removeOwners(membersToRemoveFinal, groupingPath);
                         break;
                     default:
-                        console.error('Unknown group type:', group);
                         return;
                 }
 
                 onSuccess();
-                console.log('Member removal successful');
                 onClose();
             } else {
-                console.log(memberToRemove);
-                console.log(group);
                 console.error('Error: memberToRemove is undefined or missing properties.');
             }
         } catch (error) {
@@ -96,20 +89,6 @@ const RemoveMemberModal = ({
                     </AlertDialogCancel>
                 </AlertDialogHeader>
                 <div className="flex-1 overflow-y-auto">
-                    {membersNotInList?.length > 0 && (
-                        <div className="flex items-center justify-start">
-                            <AlertDialogDescription className="py-0">
-                                Not in <span className="capitalize">{group}</span>:
-                            </AlertDialogDescription>
-                            <div className="max-w-[330px] max-h-[100px] rounded-md overflow-x-auto overflow-y-auto">
-                                <div
-                                    className={`whitespace-nowrap min-w-0 ${membersNotInList.join(', ').length > 41 ? 'mt-4' : ''}`}
-                                >
-                                    {membersNotInList.join(', ')}
-                                </div>
-                            </div>
-                        </div>
-                    )}
                     <AlertDialogDescription>
                         You are about to remove the following member from the{' '}
                         <span className="capitalize">{group}</span> list.
@@ -155,7 +134,7 @@ const RemoveMemberModal = ({
                                                         </span>
                                                     </TooltipTrigger>
                                                     <TooltipContent className="max-w-48 text-center whitespace-normal p-1 !border-none !shadow-none">
-                                                        ??screen.message.common.tool tip.username.notApplicable_e n_US??
+                                                        {message.RemoveMemberModals.TOOLTIP.NO_UID_SINGLE}
                                                     </TooltipContent>
                                                 </Tooltip>
                                             </TooltipProvider>
@@ -174,17 +153,15 @@ const RemoveMemberModal = ({
                     </AlertDialogDescription>
                     <div className="px-3">
                         <Alert className="bg-yellow-100 border border-yellow-200 mb-2">
-                            <AlertDescription>
-                                Membership changes made may not take effect immediately. Usually, 3-5 minutes should be
-                                anticipated. In extreme cases changes may take several hours to be fully processed,
-                                depending on the number of members and the synchronization destination.
-                            </AlertDescription>
+                            <AlertDescription>{message.RemoveMemberModals.ALERT_DESCRIPTION}</AlertDescription>
                         </Alert>
                     </div>
                 </div>
-                <AlertDialogFooter className={`flex flex-row justify-end space-x-2 px-4 pt-4 border-t`}>
-                    <AlertDialogAction onClick={handleRemoveMember}>Yes</AlertDialogAction>
-                    <AlertDialogCancel onClick={onClose} className={`mt-0`}>
+                <AlertDialogFooter className="flex flex-row justify-end space-x-2 px-4 pt-4 border-t">
+                    <AlertDialogAction onClick={handleRemoveMember} className="!h-[47px] !w-[50px]">
+                        Yes
+                    </AlertDialogAction>
+                    <AlertDialogCancel onClick={onClose} className="mt-0 !h-[47px] !w-[72px]">
                         Cancel
                     </AlertDialogCancel>
                 </AlertDialogFooter>

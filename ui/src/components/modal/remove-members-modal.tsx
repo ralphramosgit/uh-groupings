@@ -14,40 +14,38 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleQuestion } from '@fortawesome/free-solid-svg-icons';
 import { removeExcludeMembers, removeIncludeMembers, removeOwners } from '@/lib/actions';
 import { createPortal } from 'react-dom';
+import { message } from '@/lib/messages';
 
 const RemoveMembersModal = ({
     isOpen,
     onClose,
     membersToRemove,
-    membersNotInList,
     group,
     groupingPath,
-    onSuccess
+    onSuccess,
+    onProcessing
 }: {
     isOpen: boolean;
     onClose: () => void;
     membersToRemove: Array<{ uid: string; uhUuid: string; name: string }>;
-    membersNotInList: string[];
     group: string;
     onSuccess: () => void;
+    onProcessing: () => void;
 }) => {
     const handleRemoveMembers = async () => {
+        onProcessing();
         try {
             if (Array.isArray(membersToRemove) && membersToRemove.length > 0) {
                 const membersToRemoveFinal = membersToRemove.map((member) => member.uhUuid);
-                console.log('removal from', groupingPath);
 
                 switch (group) {
                     case 'include':
-                        console.log('Removing from include members');
                         await removeIncludeMembers(membersToRemoveFinal, groupingPath);
                         break;
                     case 'exclude':
-                        console.log('Removing from exclude members');
                         await removeExcludeMembers(membersToRemoveFinal, groupingPath);
                         break;
                     case 'owners':
-                        console.log('Removing from owners');
                         await removeOwners(membersToRemoveFinal, groupingPath);
                         break;
                     default:
@@ -81,31 +79,16 @@ const RemoveMembersModal = ({
                         <AlertDialogCancel
                             onClick={onClose}
                             className={`
-                              absolute px-4 top-0 right-0 text-[1.5rem] font-bold
-                              text-input-text-grey hover:text-red-500 bg-transparent
-                              hover:bg-transparent focus:outline-none focus:ring-0 border-none"
-                              variant="ghost
+                              absolute px-4 top-0 right-0 text-[1.5rem] font-bold text-input-text-grey 
+                              hover:text-red-500 bg-transparent hover:bg-transparent focus:outline-none focus:ring-0 border-none
                             `}
+                            variant="ghost"
                             aria-label="Close"
                         >
                             &times;
                         </AlertDialogCancel>
                     </AlertDialogHeader>
                     <div className="flex-1 overflow-y-auto">
-                        {membersNotInList.length > 0 && (
-                            <div className="flex items-center justify-start">
-                                <AlertDialogDescription className="py-0">
-                                    Not in <span className="capitalize">{group}</span>:
-                                </AlertDialogDescription>
-                                <div className="max-w-[330px] max-h-[100px] rounded-md overflow-x-auto overflow-y-auto">
-                                    <div
-                                        className={`whitespace-nowrap min-w-0 ${membersNotInList.join(', ').length > 41 ? 'mt-4' : ''}`}
-                                    >
-                                        {membersNotInList.join(', ')}
-                                    </div>
-                                </div>
-                            </div>
-                        )}
                         <AlertDialogDescription>
                             Are you sure you want to remove the following members from the{' '}
                             <span className="capitalize">{group}</span> list?
@@ -142,7 +125,10 @@ const RemoveMembersModal = ({
                                                                               whitespace-normal p-2 border-none shadow-none
                                                                             `}
                                                                         >
-                                                                            This person does not have a UH username.
+                                                                            {
+                                                                                message.RemoveMemberModals.TOOLTIP
+                                                                                    .NO_UID_MULTIPLE
+                                                                            }
                                                                         </TooltipContent>,
                                                                         document.body
                                                                     )}
@@ -165,18 +151,16 @@ const RemoveMembersModal = ({
                         </div>
                         <div className="px-3 py-2">
                             <Alert className="bg-yellow-100 border border-yellow-200 mb-2">
-                                <AlertDescription>
-                                    Membership changes made may not take effect immediately. Usually, 3-5 minutes should
-                                    be anticipated. In extreme cases changes may take several hours to be fully
-                                    processed, depending on the number of members and the synchronization destination.
-                                </AlertDescription>
+                                <AlertDescription>{message.RemoveMemberModals.ALERT_DESCRIPTION}</AlertDescription>
                             </Alert>
                         </div>
                     </div>
 
                     <AlertDialogFooter className="flex flex-row justify-end space-x-2 px-4 pt-4 border-t">
-                        <AlertDialogAction onClick={handleRemoveMembers}>Yes</AlertDialogAction>
-                        <AlertDialogCancel onClick={onClose} className="mt-0">
+                        <AlertDialogAction onClick={handleRemoveMembers} className="!h-[47px] !w-[50px]">
+                            Yes
+                        </AlertDialogAction>
+                        <AlertDialogCancel onClick={onClose} className="mt-0 !h-[47px] !w-[72px] custom-reset-before">
                             Cancel
                         </AlertDialogCancel>
                     </AlertDialogFooter>
