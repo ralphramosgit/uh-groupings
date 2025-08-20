@@ -135,18 +135,70 @@ const GroupingMembersTable = ({
     const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
     const [memberToRemove, setMemberToRemove] = useState<GroupingGroupMembers['members'][0]>(null);
     const [membersToRemove, setMembersToRemove] = useState<GroupingGroupMembers['members']>([]);
+    const [memberToManage, setMemberToManage] = useState<GroupingGroupMembers['members'][0]>(null);
+    const [membersToManage, setMembersToManage] = useState<GroupingGroupMembers['members']>([]);
     const [membersToRemoveCount, setMembersToRemoveCount] = useState(0);
+    const [membersToManageCount, setMembersToManageCount] = useState(0);
     const [manageType, setManageType] = useState<string>('');
     const router = useRouter();
     const [rowSelection, setRowSelection] = useState({});
     const [isPerformingRemoval, setIsPerformingRemoval] = useState(false);
 
-    const handleOpenRemoveMemberModal = (membersInList: GroupingGroupMembers['members']) => {
+    // const handleOpenRemoveMemberModal = (membersInList: GroupingGroupMembers['members']) => {
+    //     if (membersInList.length === 1) {
+    //         const member = membersInList[0];
+    //         const validUid = member.uid?.trim() ? member.uid : 'N/A';
+    //
+    //         setMemberToRemove({
+    //             groupPath: '',
+    //             members: [],
+    //             size: 0,
+    //             resultCode: '',
+    //             whereListed: '',
+    //             uid: validUid,
+    //             name: member.name,
+    //             uhUuid: member.uhUuid,
+    //             firstName: member.firstName,
+    //             lastName: member.lastName
+    //         });
+    //         setIsRemoveMemberModalOpen(true);
+    //         setMembersToRemoveCount(1);
+    //     } else {
+    //         console.error('handleOpenRemoveMemberModal expects exactly one member.');
+    //     }
+    // };
+    //
+    // const handleOpenRemoveMembersModal = (membersInList: GroupingGroupMembers['members']) => {
+    //     const validMembers = membersInList.map((member) => {
+    //         const validUid = !member.uid || member.uid.trim() === '' ? 'N/A' : member.uid;
+    //         return {
+    //             groupPath: '',
+    //             members: [],
+    //             size: 0,
+    //             resultCode: '',
+    //             whereListed: '',
+    //             uid: validUid,
+    //             name: member.name,
+    //             uhUuid: member.uhUuid,
+    //             firstName: member.firstName,
+    //             lastName: member.lastName
+    //         };
+    //     });
+    //
+    //     setMembersToRemove(validMembers);
+    //     setMembersToRemoveCount(validMembers.length);
+    //     setIsRemoveMembersModalOpen(true);
+    // };
+
+    //// Dynamic On Open Modals///////
+
+    const handleOpenManageMemberModal = (manageType: string, membersInList: GroupingGroupMembers['members']) => {
         if (membersInList.length === 1) {
             const member = membersInList[0];
             const validUid = member.uid?.trim() ? member.uid : 'N/A';
+            setManageType(manageType);
 
-            setMemberToRemove({
+            setMemberToManage({
                 groupPath: '',
                 members: [],
                 size: 0,
@@ -158,14 +210,26 @@ const GroupingMembersTable = ({
                 firstName: member.firstName,
                 lastName: member.lastName
             });
-            setIsRemoveMemberModalOpen(true);
-            setMembersToRemoveCount(1);
+
+            switch (manageType) {
+                case 'removeMembers':
+                    setIsRemoveMemberModalOpen(true);
+                    break;
+                case 'addMembers':
+                    console.log('Open Add Members Modal ');
+                    break;
+                default:
+                    console.error(`Unknown manage type: ${manageType}`);
+                    return;
+            }
+
+            setMembersToManageCount(1);
         } else {
             console.error('handleOpenRemoveMemberModal expects exactly one member.');
         }
     };
 
-    const handleOpenRemoveMembersModal = (membersInList: GroupingGroupMembers['members']) => {
+    const handleOpenManageMembersModal = (manageType: string, membersInList: GroupingGroupMembers['members']) => {
         const validMembers = membersInList.map((member) => {
             const validUid = !member.uid || member.uid.trim() === '' ? 'N/A' : member.uid;
             return {
@@ -182,14 +246,38 @@ const GroupingMembersTable = ({
             };
         });
 
-        setMembersToRemove(validMembers);
-        setMembersToRemoveCount(validMembers.length);
-        setIsRemoveMembersModalOpen(true);
+        setManageType(manageType);
+        setMembersToManage(validMembers);
+        setMembersToManageCount(validMembers.length);
+
+        // Condition which modal to open based on manageType
+
+        switch (manageType) {
+            case 'removeMembers':
+                setIsRemoveMembersModalOpen(true);
+                break;
+            case 'addMembers':
+                console.log('Open Add Members Modal ');
+                break;
+            default:
+                console.error(`Unknown manage type: ${manageType}`);
+                return;
+        }
     };
 
+    /////////////////////
+
     // Handle successful removal of a member or members.
-    const handleRemoveMemberSuccess = () => {
-        setManageType('removeMembers');
+    // const handleRemoveMemberSuccess = () => {
+    //     setManageType('removeMembers');
+    //     setIsRemoveMemberModalOpen(false);
+    //     setIsRemoveMembersModalOpen(false);
+    //     setIsPerformingRemoval(false);
+    //     setIsSuccessModalOpen(true);
+    // };
+
+    // dynamic handle successful management of a member(s).
+    const handleManageMemberSuccess = () => {
         setIsRemoveMemberModalOpen(false);
         setIsRemoveMembersModalOpen(false);
         setIsPerformingRemoval(false);
@@ -199,6 +287,23 @@ const GroupingMembersTable = ({
     const [isRefreshing, setIsRefreshing] = useState(false);
 
     // Handle closing the success modal and refreshing the member list.
+    // const handleCloseSuccessModal = () => {
+    //     setIsSuccessModalOpen(false);
+    //     setIsRefreshing(true);
+    //     startTransition(() => {
+    //         refetchRowCount().then(() => {
+    //             router.refresh();
+    //             setRowSelection({});
+    //             setSelectedMembers({});
+    //             setMemberToRemove(null);
+    //             setManageType('');
+    //             setTimeout(() => {
+    //                 setIsRefreshing(false);
+    //             }, 1500);
+    //         });
+    //     });
+    // };
+
     const handleCloseSuccessModal = () => {
         setIsSuccessModalOpen(false);
         setIsRefreshing(true);
@@ -207,7 +312,9 @@ const GroupingMembersTable = ({
                 router.refresh();
                 setRowSelection({});
                 setSelectedMembers({});
-                setMemberToRemove(null);
+                setMemberToManage(null);
+                setMembersToManage([]);
+                setManageType('');
                 setTimeout(() => {
                     setIsRefreshing(false);
                 }, 1500);
@@ -250,7 +357,8 @@ const GroupingMembersTable = ({
 
     const table = useReactTable({
         columns: GroupingMembersTableColumns(
-            handleOpenRemoveMemberModal,
+            // handleOpenRemoveMemberModal,
+            handleOpenManageMemberModal,
             group,
             !group ? isWhereListedPending : isBasisPending
         ),
@@ -405,42 +513,73 @@ const GroupingMembersTable = ({
                 <ListManagement
                     list={group}
                     groupingPath={groupingPath}
-                    onOpenRemoveMemberModal={handleOpenRemoveMemberModal}
-                    onOpenRemoveMembersModal={handleOpenRemoveMembersModal}
+                    // onOpenRemoveMemberModal={handleOpenRemoveMemberModal}
+                    // onOpenRemoveMembersModal={handleOpenRemoveMembersModal}
+                    onOpenManageMemberModal={handleOpenManageMemberModal}
+                    onOpenManageMembersModal={handleOpenManageMembersModal}
                     checkedMembers={checkedMembers}
                     isPerformingRemoval={isPerformingRemoval}
                 />
             ) : null}
-            {memberToRemove && (
+            {/*{memberToRemove && (*/}
+            {/*    <RemoveMemberModal*/}
+            {/*        isOpen={isRemoveMemberModalOpen}*/}
+            {/*        onClose={() => setIsRemoveMemberModalOpen(false)}*/}
+            {/*        memberToRemove={memberToRemove}*/}
+            {/*        group={group || 'null'}*/}
+            {/*        groupingPath={groupingPath}*/}
+            {/*        onSuccess={handleRemoveMemberSuccess}*/}
+            {/*        onProcessing={() => setIsPerformingRemoval(true)}*/}
+            {/*    />*/}
+            {/*)}*/}
+            {/*{membersToRemove && (*/}
+            {/*    <RemoveMembersModal*/}
+            {/*        isOpen={isRemoveMembersModalOpen}*/}
+            {/*        onClose={() => setIsRemoveMembersModalOpen(false)}*/}
+            {/*        membersToRemove={membersToRemove}*/}
+            {/*        group={group || 'null'}*/}
+            {/*        groupingPath={groupingPath}*/}
+            {/*        onSuccess={handleRemoveMemberSuccess}*/}
+            {/*        onProcessing={() => setIsPerformingRemoval(true)}*/}
+            {/*    />*/}
+            {/*)}*/}
+            {memberToManage && (
                 <RemoveMemberModal
                     isOpen={isRemoveMemberModalOpen}
-                    onClose={() => setIsRemoveMemberModalOpen(false)}
-                    memberToRemove={memberToRemove}
+                    onClose={() => {
+                        setIsRemoveMemberModalOpen(false);
+                    }}
+                    memberToRemove={memberToManage}
                     group={group || 'null'}
                     groupingPath={groupingPath}
-                    onSuccess={handleRemoveMemberSuccess}
+                    onSuccess={handleManageMemberSuccess}
                     onProcessing={() => setIsPerformingRemoval(true)}
                 />
             )}
-            {membersToRemove && (
+            {membersToManage && (
                 <RemoveMembersModal
                     isOpen={isRemoveMembersModalOpen}
-                    onClose={() => setIsRemoveMembersModalOpen(false)}
-                    membersToRemove={membersToRemove}
+                    onClose={() => {
+                        setIsRemoveMembersModalOpen(false);
+                    }}
+                    membersToRemove={membersToManage}
                     group={group || 'null'}
                     groupingPath={groupingPath}
-                    onSuccess={handleRemoveMemberSuccess}
+                    onSuccess={handleManageMemberSuccess}
                     onProcessing={() => setIsPerformingRemoval(true)}
                 />
             )}
+            {/*addMembersModal :*/}
             {isSuccessModalOpen && (
                 <SuccessModal
                     isOpen={isSuccessModalOpen}
                     onClose={handleCloseSuccessModal}
-                    name={membersToRemoveCount === 1 ? memberToRemove?.name || membersToRemove[0]?.name || '' : ''}
+                    // name={membersToRemoveCount === 1 ? memberToRemove?.name || membersToRemove[0]?.name || '' : ''}
+                    name={membersToManageCount === 1 ? memberToManage?.name || membersToManage[0]?.name || '' : ''}
                     group={group}
                     manageType={manageType}
-                    memberCount={membersToRemoveCount}
+                    // memberCount={membersToRemoveCount}
+                    memberCount={membersToManageCount}
                 />
             )}
 

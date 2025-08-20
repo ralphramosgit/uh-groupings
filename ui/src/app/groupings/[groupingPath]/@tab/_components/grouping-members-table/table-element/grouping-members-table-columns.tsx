@@ -11,7 +11,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { message } from '@/lib/messages';
 
 const GroupingMembersTableColumns = (
-    onOpenRemoveMemberModal: (membersInList: GroupingGroupMembers['members'], membersNotInList: string[]) => void,
+    // onOpenRemoveMemberModal: (membersInList: GroupingGroupMembers['members'], membersNotInList: string[]) => void,
+    onOpenManageMemberModal: (manageType: string, membersInList: GroupingGroupMembers['members']) => void,
     group?: Group,
     isPending?: boolean
 ): ColumnDef<GroupingGroupMember | GroupingMember>[] => {
@@ -83,10 +84,9 @@ const GroupingMembersTableColumns = (
                                     <span>
                                         <button
                                             onClick={() =>
-                                                onOpenRemoveMemberModal(
-                                                    [{ ...row.original } as GroupingGroupMembers['members'][number]],
-                                                    []
-                                                )
+                                                onOpenManageMemberModal('removeMembers', [
+                                                    { ...row.original } as GroupingGroupMembers['members'][number]
+                                                ])
                                             }
                                             aria-label="Remove Member"
                                             className="text-red-500 hover:text-red-700"

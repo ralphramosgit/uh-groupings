@@ -11,15 +11,19 @@ import { message } from '@/lib/messages';
 const ListManagement = ({
     list,
     groupingPath,
-    onOpenRemoveMemberModal,
-    onOpenRemoveMembersModal,
+    // onOpenRemoveMemberModal,
+    // onOpenRemoveMembersModal,
+    onOpenManageMemberModal,
+    onOpenManageMembersModal,
     checkedMembers,
     isPerformingRemoval
 }: {
     list: string;
     groupingPath: string;
-    onOpenRemoveMemberModal: (membersInList: MemberResult[]) => void;
-    onOpenRemoveMembersModal?: (membersInList: MemberResult[]) => void;
+    // onOpenRemoveMemberModal: (membersInList: MemberResult[]) => void;
+    // onOpenRemoveMembersModal?: (membersInList: MemberResult[]) => void;
+    onOpenManageMemberModal: (manageType: string, membersInList: MemberResult[]) => void;
+    onOpenManageMembersModal?: (manageType: string, membersInList: MemberResult[]) => void;
     checkedMembers?: MemberResult[];
     isPerformingRemoval: boolean;
 }) => {
@@ -173,7 +177,25 @@ const ListManagement = ({
     };
 
     // Handle list management using member search input.
-    const handleInputMembers = async () => {
+    // const handleInputMembers = async () => {
+    //     const result = await getMembersInList();
+    //
+    //     if (!result) {
+    //         return;
+    //     }
+    //
+    //     const { membersInList } = result;
+    //
+    //     if (membersInList.length === 1) {
+    //         await handleLoadingAndOpenModal(() => onOpenRemoveMemberModal?.(membersInList));
+    //     } else if (membersInList.length > 1) {
+    //         await handleLoadingAndOpenModal(() => onOpenRemoveMembersModal?.(membersInList));
+    //     } else {
+    //         setErrorMessage(message.ListManagement.ERROR.NO_VALID_MEMBERS_TO_REMOVE);
+    //     }
+    // };
+
+    const handleInputMembers = async (manageType: string) => {
         const result = await getMembersInList();
 
         if (!result) {
@@ -183,30 +205,44 @@ const ListManagement = ({
         const { membersInList } = result;
 
         if (membersInList.length === 1) {
-            await handleLoadingAndOpenModal(() => onOpenRemoveMemberModal?.(membersInList));
+            await handleLoadingAndOpenModal(() => onOpenManageMemberModal?.(manageType, membersInList));
         } else if (membersInList.length > 1) {
-            await handleLoadingAndOpenModal(() => onOpenRemoveMembersModal?.(membersInList));
+            await handleLoadingAndOpenModal(() => onOpenManageMembersModal?.(manageType, membersInList));
         } else {
             setErrorMessage(message.ListManagement.ERROR.NO_VALID_MEMBERS_TO_REMOVE);
         }
     };
 
     // Handle List management using the checkbox from the table.
-    const handleCheckedMembers = async () => {
+    const handleCheckedMembers = async (manageType: string) => {
         if (checkedMembers.length === 1) {
             await handleLoadingAndOpenModal(() => {
-                onOpenRemoveMemberModal?.(checkedMembers);
+                onOpenManageMemberModal?.(manageType, checkedMembers);
             });
         } else {
-            await handleLoadingAndOpenModal(() => onOpenRemoveMembersModal?.(checkedMembers));
+            await handleLoadingAndOpenModal(() => onOpenManageMembersModal?.(manageType, checkedMembers));
         }
     };
 
     const handleRemoveClick = async () => {
+        const manageType = 'removeMembers';
+
         if (manageMembers.trim()) {
-            await handleInputMembers();
+            await handleInputMembers(manageType);
         } else if (checkedMembers?.length) {
-            await handleCheckedMembers();
+            await handleCheckedMembers(manageType);
+        } else {
+            setErrorMessage('Please enter one or more UH members.');
+        }
+    };
+
+    const handleAddClick = async () => {
+        const manageType = 'addMembers';
+
+        if (manageMembers.trim()) {
+            await handleInputMembers(manageType);
+        } else if (checkedMembers?.length) {
+            await handleCheckedMembers(manageType);
         } else {
             setErrorMessage('Please enter one or more UH members.');
         }
@@ -254,7 +290,13 @@ const ListManagement = ({
                                     alt="Add Member"
                                     size="default"
                                     aria-label="add-member-button"
-                                    onClick={() => console.log(`Add to ${list}: ${manageMembers}`)}
+                                    onClick={() => {
+                                        void handleAddClick();
+                                    }}
+                                    onBlur={() => {
+                                        setLoading(false);
+                                        setErrorMessage('');
+                                    }}
                                     className="ml-[2px] h-[44px]"
                                 >
                                     Add
