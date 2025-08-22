@@ -2,6 +2,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { GroupingGroupMember } from '@/lib/types';
 import RemoveMemberModal from '@/components/modal/remove-member-modal';
 import { removeAdmin } from '@/lib/actions';
+import { useState } from 'react';
 
 const AdminTableColumns: ColumnDef<GroupingGroupMember>[] = [
     {
@@ -23,12 +24,33 @@ const AdminTableColumns: ColumnDef<GroupingGroupMember>[] = [
     {
         header: 'Remove',
         cell: ({ row }) => (
+            // <RemoveMemberModal
+            //     uid={row.getValue('uid')}
+            //     name={row.getValue('name')}
+            //     uhUuid={row.getValue('uhUuid')}
+            //     group={'admins'}
+            //     action={removeAdmin}
+            // />
             <RemoveMemberModal
-                uid={row.getValue('uid')}
-                name={row.getValue('name')}
-                uhUuid={row.getValue('uhUuid')}
+                isOpen={false}
+                onClose={() => {
+                    console.log('close modal');
+                }}
+                memberToRemove={{
+                    uid: row.getValue('uid'),
+                    name: row.getValue('name'),
+                    uhUuid: row.getValue('uhUuid'),
+                    firstName: row.getValue('firstName'),
+                    lastName: row.getValue('lastName')
+                }}
                 group={'admins'}
-                action={removeAdmin}
+                groupingPath={''}
+                onSuccess={() => {
+                    console.log('success');
+                }}
+                onProcessing={() => {
+                    console.log('processing');
+                }}
             />
         )
     }

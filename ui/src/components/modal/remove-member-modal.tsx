@@ -14,7 +14,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleQuestion } from '@fortawesome/free-solid-svg-icons';
 import { MemberResult } from '@/lib/types';
-import { removeExcludeMembers, removeIncludeMembers, removeOwners } from '@/lib/actions';
+import { removeExcludeMembers, removeIncludeMembers, removeOwners, removeAdmin } from '@/lib/actions';
 import { message } from '@/lib/messages';
 
 const RemoveMemberModal = ({
@@ -49,6 +49,9 @@ const RemoveMemberModal = ({
                         break;
                     case 'owners':
                         await removeOwners(membersToRemoveFinal, groupingPath);
+                        break;
+                    case 'admins':
+                        await removeAdmin(memberToRemove.uid);
                         break;
                     default:
                         return;
