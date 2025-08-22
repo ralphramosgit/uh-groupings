@@ -96,7 +96,6 @@ const GroupingMembersTableColumns = (
                                     </span>
                                 </TooltipTrigger>
                                 <TooltipContent className="max-w-48 text-center whitespace-normal p-1 !border-none !shadow-none">
-                                    {/*Remove member from the {group} list*/}
                                     {message.Tooltip.TRASH_ICON_REMOVAL(group || '')}
                                 </TooltipContent>
                             </Tooltip>
