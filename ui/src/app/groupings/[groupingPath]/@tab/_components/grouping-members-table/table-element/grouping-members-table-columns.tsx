@@ -11,7 +11,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { message } from '@/lib/messages';
 
 const GroupingMembersTableColumns = (
-    // onOpenRemoveMemberModal: (membersInList: GroupingGroupMembers['members'], membersNotInList: string[]) => void,
     onOpenManageMemberModal: (manageType: string, membersInList: GroupingGroupMembers['members']) => void,
     group?: Group,
     isPending?: boolean

@@ -11,8 +11,6 @@ import { message } from '@/lib/messages';
 const ListManagement = ({
     list,
     groupingPath,
-    // onOpenRemoveMemberModal,
-    // onOpenRemoveMembersModal,
     onOpenManageMemberModal,
     onOpenManageMembersModal,
     checkedMembers,
@@ -20,8 +18,6 @@ const ListManagement = ({
 }: {
     list: string;
     groupingPath: string;
-    // onOpenRemoveMemberModal: (membersInList: MemberResult[]) => void;
-    // onOpenRemoveMembersModal?: (membersInList: MemberResult[]) => void;
     onOpenManageMemberModal: (manageType: string, membersInList: MemberResult[]) => void;
     onOpenManageMembersModal?: (manageType: string, membersInList: MemberResult[]) => void;
     checkedMembers?: MemberResult[];
@@ -177,24 +173,6 @@ const ListManagement = ({
     };
 
     // Handle list management using member search input.
-    // const handleInputMembers = async () => {
-    //     const result = await getMembersInList();
-    //
-    //     if (!result) {
-    //         return;
-    //     }
-    //
-    //     const { membersInList } = result;
-    //
-    //     if (membersInList.length === 1) {
-    //         await handleLoadingAndOpenModal(() => onOpenRemoveMemberModal?.(membersInList));
-    //     } else if (membersInList.length > 1) {
-    //         await handleLoadingAndOpenModal(() => onOpenRemoveMembersModal?.(membersInList));
-    //     } else {
-    //         setErrorMessage(message.ListManagement.ERROR.NO_VALID_MEMBERS_TO_REMOVE);
-    //     }
-    // };
-
     const handleInputMembers = async (manageType: string) => {
         const result = await getMembersInList();
 
