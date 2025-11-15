@@ -7,14 +7,16 @@ export const message = {
         OPT_OUT_LABEL: 'Allow people to remove themselves from this group',
         MODAL_TITLE: 'Preferences Information',
         MODAL_CLOSE: 'OK',
-        MODAL_CANCEL: 'Cancel',
+        MODAL_CANCEL: 'Cancel'
     },
 
     Tooltip: {
         OPT_IN: 'Enable the opt-in self-service so that new members can discover and join this grouping.',
         OPT_OUT: 'Enable the opt-out self-service so that members can leave at any time.',
-        SYNC_DEST: (description: string) =>
-            `This option syncs destinations to ${description}`,
+        SYNC_DEST: (description: string) => `This option syncs destinations to ${description}`,
+        SELECT_ALL_LIST: 'See tools tab to remove entire list',
+        TRASH_ICON_REMOVAL: (group: string) =>
+            `Remove member from the ${group.charAt(0).toUpperCase() + group.slice(1)} list`
     },
 
     SyncDestinations: {
@@ -26,7 +28,7 @@ export const message = {
             'Please be thoughtful about any changes here as some changes are operationally very expensive. Avoid rapidly enabling and disabling a synchronization destination.',
         MODAL_BODY: (synced: boolean, description: string) =>
             `Are you sure you want to ${synced ? 'disable' : 'enable'} the synchronization destination: ${description}?`,
-        MODAL_CONFIRM: 'Yes',
+        MODAL_CONFIRM: 'Yes'
     },
 
     Actions: {
@@ -39,16 +41,12 @@ export const message = {
         MODAL_TITLE: 'Reset Grouping',
         MODAL_BODY: (isInclude: boolean, isExclude: boolean, groupName: string) => {
             const target =
-                isInclude && isExclude
-                    ? 'Exclude and Include lists'
-                    : isInclude
-                        ? 'Include list'
-                        : 'Exclude list';
+                isInclude && isExclude ? 'Exclude and Include lists' : isInclude ? 'Include list' : 'Exclude list';
             return `Are you sure you want to remove all members from the ${target} in the ${groupName} grouping?`;
         },
         MODAL_CONFIRM: 'Yes',
         MODAL_INFO_TITLE: 'Actions Information',
-        MODAL_SUCCESS_TITLE: 'Grouping Reset Completion',
+        MODAL_SUCCESS_TITLE: 'Grouping Reset Completion'
     },
 
     ApiError: {
@@ -61,6 +59,6 @@ export const message = {
         ),
         FEEDBACK_LINK: '/feedback',
         FEEDBACK_TEXT2: 'Feedback',
-        CLOSE_TEXT: 'OK',
+        CLOSE_TEXT: 'OK'
     }
 };

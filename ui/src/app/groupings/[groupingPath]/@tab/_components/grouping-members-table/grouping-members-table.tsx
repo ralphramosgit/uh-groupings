@@ -10,11 +10,11 @@ import {
     useReactTable
 } from '@tanstack/react-table';
 import GroupingMembersTableColumns from './table-element/grouping-members-table-columns';
-import { Group, GroupingGroupMembers } from '@/lib/types';
+import { Group, GroupingGroupMembers, MemberResult } from '@/lib/types';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import SortArrow from '@/components/table/table-element/sort-arrow';
 import PaginationBar from '@/components/table/table-element/pagination-bar';
-import { useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import GlobalFilter from '@/components/table/table-element/global-filter';
 import { useQuery } from '@tanstack/react-query';
 import { Spinner } from '@/components/ui/spinner';
@@ -119,6 +119,41 @@ const GroupingMembersTable = ({
         queryFn: () => getGroupingMembersWhereListed(groupingPath, uhUuids).then((res) => res.members)
     });
 
+    const [rowSelection, setRowSelection] = useState({});
+
+    // For Checkbox Selection
+    const [selectedMembers, setSelectedMembers] = useState<Record<string, MemberResult>>({});
+    const handleRowSelectionChange = (updater: Updater<Record<string, boolean>>) => {
+        const newRowSelection = typeof updater === 'function' ? updater(rowSelection) : updater;
+        setRowSelection(newRowSelection);
+
+        setSelectedMembers((prevSelectedMembers) => {
+            const newSelectedMembers = { ...prevSelectedMembers };
+
+            table.getRowModel().rows.forEach((row) => {
+                if (newRowSelection[row.id] && !newSelectedMembers[row.id]) {
+                    newSelectedMembers[row.id] = row.original as MemberResult;
+                }
+            });
+
+            Object.keys(newSelectedMembers).forEach((uhUuid) => {
+                if (!newRowSelection[uhUuid]) {
+                    delete newSelectedMembers[uhUuid];
+                }
+            });
+
+            return newSelectedMembers;
+        });
+    };
+
+    // Reset selection when groupingPath, group, or globalFilter changes.
+    useEffect(() => {
+        setRowSelection({});
+        setSelectedMembers({});
+    }, [groupingPath, group, globalFilter]);
+
+    // const checkedMembers = Object.values(selectedMembers);
+
     const table = useReactTable({
         columns: GroupingMembersTableColumns(group, !group ? isWhereListedPending : isBasisPending),
         data: !group ? groupingMembersWhereListed : groupingMembersIsBasis,
@@ -126,10 +161,14 @@ const GroupingMembersTable = ({
         getCoreRowModel: getCoreRowModel(),
         onPaginationChange,
         onSortingChange,
-        state: { pagination, sorting },
+        onRowSelectionChange: handleRowSelectionChange,
+        state: { pagination, sorting, rowSelection },
         manualPagination: true,
         manualSorting: true,
-        enableSortingRemoval: false
+        enableSortingRemoval: false,
+        enableRowSelection: true,
+        enableMultiRowSelection: true,
+        getRowId: (row: MemberResult) => row.uhUuid
     });
 
     return (
@@ -153,15 +192,58 @@ const GroupingMembersTable = ({
                     {table.getHeaderGroups().map((headerGroup) => (
                         <TableRow key={headerGroup.id}>
                             {headerGroup.headers.map((header) => (
+                                // <TableHead
+                                //     key={header.id}
+                                //     onClick={header.column.getToggleSortingHandler()}
+                                //     className={`
+                                //       ${!table.getIsAllColumnsVisible() && header.column.getIndex() > 0 ? '' : ''}
+                                //       ${header.column.getIndex() > 0 ? 'hidden sm:table-cell' : 'w-2/5 md:w-1/3'}
+                                //     `}
+                                // >
+                                //     <div className="flex items-center">
+                                //         {flexRender(header.column.columnDef.header, header.getContext())}
+                                //         <SortArrow direction={header.column.getIsSorted()} />
+                                //     </div>
+                                // </TableHead>
                                 <TableHead
                                     key={header.id}
                                     onClick={header.column.getToggleSortingHandler()}
                                     className={`
-                                      ${!table.getIsAllColumnsVisible() && header.column.getIndex() > 0 ? '' : ''}
-                                      ${header.column.getIndex() > 0 ? 'hidden sm:table-cell' : 'w-2/5 md:w-1/3'}
-                                    `}
+                                        ${header.id === 'select' ? 'w-[10%] sm:w-12' : ''}
+                                        ${
+                                            header.id === 'name'
+                                                ? group === 'owners'
+                                                    ? 'w-[65%] overflow-hidden'
+                                                    : ['include', 'exclude'].includes(group || '')
+                                                      ? 'w-[35%] md:w-2/5 overflow-hidden'
+                                                      : 'w-[30%]'
+                                                : ''
+                                        }
+                                        ${
+                                            ['uhUuid', 'uid'].includes(header.id)
+                                                ? ['include', 'exclude'].includes(group || '')
+                                                    ? 'w-[20%] whitespace-normal sm:whitespace-nowrap'
+                                                    : ''
+                                                : ''
+                                        }
+                                        ${
+                                            header.id === 'whereListed'
+                                                ? ['include', 'exclude'].includes(group || '')
+                                                    ? 'w-[15%]'
+                                                    : 'w-[30%]'
+                                                : ''
+                                        }
+                                        whitespace-normal px-2 md:px-4 [vertical-align:bottom] md:[vertical-align:middle]
+                                      `}
                                 >
-                                    <div className="flex items-center">
+                                    <div
+                                        className={`
+                                            ${header.id === 'select' ? 'flex items-center px-2 pb-[5px] md:pb-0' : ''}
+                                            ${['uhUuid', 'uid'].includes(header.id) ? 'flex flex-col md:flex-row' : 'flex flex-row'}
+                                            ${['name'].includes(header.id) ? 'flex items-center' : ''}
+                                            flex items-start md:items-center  
+                                          `}
+                                    >
                                         {flexRender(header.column.columnDef.header, header.getContext())}
                                         <SortArrow direction={header.column.getIsSorted()} />
                                     </div>
@@ -171,14 +253,58 @@ const GroupingMembersTable = ({
                     ))}
                 </TableHeader>
                 <TableBody>
+                    {/*{table.getRowModel().rows.map((row) => (*/}
+                    {/*    <TableRow key={row.id}>*/}
+                    {/*        {row.getVisibleCells().map((cell) => (*/}
+                    {/*            <TableCell*/}
+                    {/*                key={cell.id}*/}
+                    {/*                className={`${cell.column.getIndex() > 0 ? 'hidden sm:table-cell' : ''}`}*/}
+                    {/*            >*/}
+                    {/*                <div className="flex items-center px-5 py-1.5 overflow-hidden whitespace-nowrap">*/}
+                    {/*                    {flexRender(cell.column.columnDef.cell, cell.getContext())}*/}
+                    {/*                </div>*/}
+                    {/*            </TableCell>*/}
+                    {/*        ))}*/}
+                    {/*    </TableRow>*/}
                     {table.getRowModel().rows.map((row) => (
                         <TableRow key={row.id}>
                             {row.getVisibleCells().map((cell) => (
                                 <TableCell
                                     key={cell.id}
-                                    className={`${cell.column.getIndex() > 0 ? 'hidden sm:table-cell' : ''}`}
+                                    className={`
+                                        ${cell.column.id === 'select' ? 'w-[10%] px-4 sm:w-12' : ''}
+                                        ${
+                                            cell.column.id === 'name'
+                                                ? group === 'owners'
+                                                    ? 'w-[65%] overflow-hidden'
+                                                    : ['include', 'exclude'].includes(group || '')
+                                                      ? 'w-[35%] md:w-2/5 overflow-hidden'
+                                                      : 'w-[30%]'
+                                                : ''
+                                        }
+                                        ${
+                                            ['uhUuid', 'uid'].includes(cell.column.id)
+                                                ? ['include', 'exclude'].includes(group || '')
+                                                    ? 'w-[20%] '
+                                                    : ''
+                                                : ''
+                                        }
+                                        ${
+                                            cell.column.id === 'whereListed'
+                                                ? ['include', 'exclude'].includes(group || '')
+                                                    ? 'w-[15%]'
+                                                    : ''
+                                                : ''
+                                        }
+                                        whitespace-normal
+                                      `}
                                 >
-                                    <div className="flex items-center px-5 py-1.5 overflow-hidden whitespace-nowrap">
+                                    <div
+                                        className={`
+                                            ${cell.column.id === 'select' ? 'flex items-start px-0 md:px-2' : ''}
+                                            ${['name', 'uhUuid', 'uid', 'whereListed'].includes(cell.column.id) ? 'flex items-start px-2 py-1.5 md:px-4' : ''}
+                                          `}
+                                    >
                                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                     </div>
                                 </TableCell>
