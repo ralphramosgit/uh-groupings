@@ -113,6 +113,13 @@ const ListManagement = ({
         const memberInputMap = new Map<string, { member: MemberResult; inputs: string[] }>();
         const duplicateMembers = new Set<string>();
 
+        // Count how many times each input appears (case-insensitive)
+        const inputCounts = new Map<string, number>();
+        for (const input of validTextInput) {
+            const normalizedInput = input.toLowerCase();
+            inputCounts.set(normalizedInput, (inputCounts.get(normalizedInput) || 0) + 1);
+        }
+
         // Map each input to the member it represents.
         for (const input of validTextInput) {
             const matchingMember = inList.find(
@@ -129,9 +136,14 @@ const ListManagement = ({
             }
         }
 
-        // Find members with multiple inputs (duplicates).
+        // Find members where the SAME input was entered multiple times (true duplicates).
         for (const [uhUuid, { inputs }] of memberInputMap.entries()) {
-            if (inputs.length > 1) {
+            const hasDuplicateInput = inputs.some((input) => {
+                const normalizedInput = input.toLowerCase();
+                return (inputCounts.get(normalizedInput) || 0) > 1;
+            });
+
+            if (hasDuplicateInput) {
                 duplicateMembers.add(uhUuid);
             }
         }
@@ -161,7 +173,10 @@ const ListManagement = ({
             return null;
         }
 
-        return { membersInList: inList };
+        // Deduplicate members by uhUuid before returning (in case both uid and uhUuid were entered for same person)
+        const uniqueMembers = Array.from(memberInputMap.values()).map((entry) => entry.member);
+
+        return { membersInList: uniqueMembers };
     };
 
     // Function to handle loading state and opening the modals.
