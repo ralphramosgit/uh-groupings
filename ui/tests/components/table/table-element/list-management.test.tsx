@@ -12,117 +12,68 @@ vi.mock('@/lib/actions', () => ({
     getMembersExistInOwners: vi.fn().mockResolvedValue([])
 }));
 describe('ListManagement Component', () => {
-    // const mockMembersInList = [
-    //     { uid: 'testUid1', uhUuid: '1111111111', name: 'testUser1' },
-    //     { uid: 'testUid2', uhUuid: '2222222222', name: 'testUser2' },
-    //     { uid: 'testUid3', uhUuid: '3333333333', name: 'testUser3' },
-    //     { uid: 'testUid4', uhUuid: '4444444444', name: 'testUser4' },
-    //     { uid: 'testUid5', uhUuid: '5555555555', name: 'testUser5' },
-    //     { uid: 'testUid6', uhUuid: '6666666666', name: 'testUser6' }
-    // ];
-    //
-    // const mockMembersNotInList = [
-    //     { uid: 'testUid7', uhUuid: '7777777777', name: 'testUser7' },
-    //     { uid: 'testUid8', uhUuid: '8888888888', name: 'testUser8' },
-    //     { uid: 'testUid9', uhUuid: '9999999999', name: 'testUser9' }
-    // ];
-    //
-    // const mockCheckedMembers = [
-    //     { uid: 'test-uid-1', uhUuid: 'test-uhuuid-1', name: 'test-user-1' },
-    //     { uid: 'test-uid-3', uhUuid: 'test-uhuuid-3', name: 'test-user-3' }
-    // ];
-    //
-    // const mockInputMembers = 'test-uid-1, test-uid-3, test-uid-5, test-uid-7';
-
-    const mockMembersInBasis = [
-        {
-            name: 'User One',
-            uid: 'user1',
-            uhUuid: '00000001',
-            firstName: 'User',
-            lastName: 'One',
-            whereListed: 'Basis'
-        },
-        {
-            name: 'User Four',
-            uid: 'user4',
-            uhUuid: '00000004',
-            firstName: 'User',
-            lastName: 'Four',
-            whereListed: 'Basis'
-        },
-        {
-            name: 'User Seven',
-            uid: 'user7',
-            uhUuid: '00000007',
-            firstName: 'User',
-            lastName: 'Seven',
-            whereListed: 'Basis'
-        }
-    ];
-
     const mockMembersInInclude = [
         {
-            name: 'User One',
-            uid: 'user1',
-            uhUuid: '00000001',
-            firstName: 'User',
-            lastName: 'One',
-            whereListed: 'Include'
+            name: 'Testf-iwt-a TestIAM-staff',
+            uid: 'testiwta',
+            uhUuid: '99997010',
+            firstName: 'Testf-iwt-a',
+            lastName: 'TestIAM-staff',
+            whereListed: 'Include, Owners'
         },
         {
-            name: 'User Two',
-            uid: 'user2',
-            uhUuid: '00000002',
-            firstName: 'User',
-            lastName: 'Two',
-            whereListed: 'Include'
+            name: 'Testf-iwt-b TestIAM-staff',
+            uid: 'testiwtb',
+            uhUuid: '99997027',
+            firstName: 'Testf-iwt-b',
+            lastName: 'TestIAM-staff',
+            whereListed: 'Include, Owners'
         },
         {
-            name: 'User Three',
-            uid: 'user3',
-            uhUuid: '00000003',
-            firstName: 'User',
-            lastName: 'Three',
+            name: 'Testf-iwt-c TestIAM-staff',
+            uid: 'testiwtc',
+            uhUuid: '99997033',
+            firstName: 'Testf-iwt-c',
+            lastName: 'TestIAM-staff',
             whereListed: 'Include'
         }
     ];
 
     const mockMembersInExclude = [
         {
-            name: 'User Four',
-            uid: 'user4',
-            uhUuid: '00000004',
-            firstName: 'User',
-            lastName: 'Four',
+            name: 'Testf-iwt-d TestIAM-faculty',
+            uid: 'testiwtd',
+            uhUuid: '99997043',
+            firstName: 'Testf-iwt-d',
+            lastName: 'TestIAM-faculty',
             whereListed: 'Exclude'
         },
         {
-            name: 'User Five',
-            uid: 'user5',
-            uhUuid: '00000005',
-            firstName: 'User',
-            lastName: 'Five',
-            whereListed: 'Exclude'
-        },
-        {
-            name: 'User Nine',
-            uid: 'user9',
-            uhUuid: '00000009',
-            firstName: 'User',
-            lastName: 'Nine',
+            name: 'Testf-iwt-e TestIAM-student',
+            uid: 'testiwte',
+            uhUuid: '99997056',
+            firstName: 'Testf-iwt-e',
+            lastName: 'TestIAM-student',
             whereListed: 'Exclude'
         }
     ];
 
     const mockMembersInOwners = [
         {
-            name: 'User Six',
-            uid: 'user6',
-            uhUuid: '00000006',
-            firstName: 'User',
-            lastName: 'Six',
-            whereListed: 'Owners'
+            name: 'Testf-iwt-a TestIAM-staff',
+            uid: 'testiwta',
+            uhUuid: '99997010',
+            firstName: 'Testf-iwt-a',
+            lastName: 'TestIAM-staff',
+            whereListed: 'Include, Owners'
+        },
+        {
+            name: 'Testf-iwt-b TestIAM-staff',
+            uid: 'testiwtb',
+            uhUuid: '99997027',
+            firstName: 'Testf-iwt-b',
+            lastName: 'TestIAM-staff',
+            whereListed: 'Include, Owners'
         }
     ];
 
@@ -211,14 +162,6 @@ describe('ListManagement Component', () => {
         const mockOnOpenManageMemberModal = vi.fn();
         const mockOnOpenManageMembersModal = vi.fn();
 
-        // const TEST_USER = {
-        //     name: 'Testf-iwt-a TestIAM-staff',
-        //     firstName: 'Testf-iwt-a',
-        //     lastName: 'TestIAM-staff',
-        //     uid: 'testiwta',
-        //     uhUuid: '99997010'
-        // };
-
         const setup = async (inputValue: string) => {
             const user = userEvent.setup();
             render(
@@ -255,7 +198,7 @@ describe('ListManagement Component', () => {
             );
 
             const inputBox = screen.getByPlaceholderText(/UH Username or UH Number/i);
-            await user.type(inputBox, `user1!@#$%`);
+            await user.type(inputBox, `testiwta!@#$%`);
 
             const removeButton = screen.getByLabelText(/remove-member-button/i);
             await user.click(removeButton);
@@ -284,7 +227,7 @@ describe('ListManagement Component', () => {
             );
 
             const inputBox = screen.getByPlaceholderText(/UH Username or UH Number/i);
-            await user.type(inputBox, `user1!@#, user2$%^, user3&*()`);
+            await user.type(inputBox, `testiwta!@#, testiwtb%^, testiwtc&*()`);
 
             const removeButton = screen.getByLabelText(/remove-member-button/i);
             await user.click(removeButton);
@@ -313,7 +256,7 @@ describe('ListManagement Component', () => {
             );
 
             const inputBox = screen.getByPlaceholderText(/UH Username or UH Number/i);
-            await user.type(inputBox, `!@#, user1, $%^&, user2, *()_+`);
+            await user.type(inputBox, `!@#, testiwta, $%^&, testiwtb, *()_+`);
 
             const removeButton = screen.getByLabelText(/remove-member-button/i);
             await user.click(removeButton);
@@ -667,7 +610,7 @@ describe('ListManagement Component', () => {
             expect(mockOnOpenManageMemberModal).not.toHaveBeenCalled();
         });
 
-        it('should display members not in include list error with an removal input of members in the include list and members not in the include list', async () => {
+        it('should display members not-in-include-list error with a removal input of members in the include list and members not in the include list', async () => {
             vi.mocked(getMembersExistInInclude).mockResolvedValue({
                 members: [mockMembersInInclude[0], mockMembersInInclude[1]] // Mocks the api response that some members of the user input are in the include list
             });
@@ -715,7 +658,7 @@ describe('ListManagement Component', () => {
                 expect(getMembersExistInInclude).toHaveBeenCalledWith('/mock/path', [mockMembersInInclude[0].uhUuid]);
             });
 
-            // Verify the component found user1 in the returned list and calls modal
+            // Verify the component found testiwta in the returned list and calls modal
             await waitFor(() => {
                 expect(mockOnOpenManageMemberModal).toHaveBeenCalledWith('removeMembers', [mockMembersInInclude[0]]);
             });
@@ -806,32 +749,6 @@ describe('ListManagement Component', () => {
             expect(mockOnOpenManageMemberModal).not.toHaveBeenCalled();
         });
 
-        // Input with a member's uhuuid and uid both present
-        it('should display duplicate members error when removing an input contains both the uhUuid and uid of a member', async () => {
-            vi.mocked(getMembersExistInInclude).mockResolvedValue({
-                members: [mockMembersInInclude[0]] // Mocks the api response of the input, the response of the API request
-            });
-
-            const { user } = await setup(`${mockMembersInInclude[0].uhUuid}, ${mockMembersInInclude[0].uid}`);
-            const removeButton = screen.getByLabelText(/remove-member-button/i);
-
-            await user.click(removeButton);
-
-            await waitFor(() => {
-                expect(
-                    screen.getByText(
-                        new RegExp(
-                            `Duplicate member.*\\[${mockMembersInInclude[0].uid}\\s*=\\s*${mockMembersInInclude[0].uhUuid}\\]`,
-                            'i'
-                        )
-                    )
-                ).toBeInTheDocument();
-            });
-
-            expect(mockOnOpenManageMembersModal).not.toHaveBeenCalled();
-            expect(mockOnOpenManageMemberModal).not.toHaveBeenCalled();
-        });
-
         // Input with multiple members of duplicate uhUuids
         it('should display duplicate members error when removing multiple duplicate member uhUuids in input', async () => {
             vi.mocked(getMembersExistInInclude).mockResolvedValue({
@@ -859,11 +776,131 @@ describe('ListManagement Component', () => {
             expect(mockOnOpenManageMembersModal).not.toHaveBeenCalled();
             expect(mockOnOpenManageMemberModal).not.toHaveBeenCalled();
         });
+
+        // Input with a member's uhuuid and uid both present, each uhIdentifier count is no more than 1 should be ACCEPTED
+        // example input: 'inListUID inListUhuuid'
+        it('should accept when removing an input that contains both the uhUuid and uid of a member', async () => {
+            vi.mocked(getMembersExistInInclude).mockResolvedValue({
+                members: [mockMembersInInclude[0]] // Mocks the api response of the input, the response of the API request
+            });
+
+            const { user } = await setup(`${mockMembersInInclude[0].uhUuid}, ${mockMembersInInclude[0].uid}`);
+            const removeButton = screen.getByLabelText(/remove-member-button/i);
+            await user.click(removeButton);
+
+            // Verify the API was called with the correct input
+            await waitFor(() => {
+                expect(getMembersExistInInclude).toHaveBeenCalledWith('/mock/path', [
+                    mockMembersInInclude[0].uhUuid,
+                    mockMembersInInclude[0].uid
+                ]);
+            });
+
+            // Verify the component found testiwta in the returned list and calls modal
+            await waitFor(() => {
+                expect(mockOnOpenManageMemberModal).toHaveBeenCalledWith('removeMembers', [mockMembersInInclude[0]]);
+            });
+
+            expect(mockOnOpenManageMembersModal).not.toHaveBeenCalled();
+        });
+
+        // Input with multiple members' uhUuid and uid both present, each uhIdentifier count is no more than 1 should be ACCEPTED
+        // example input: 'inList1UID inList1UhUuid inList2UID inList2UhUuid'
+        it('should accept when removing an input that contains both the uhUuid and uid for multiple members', async () => {
+            vi.mocked(getMembersExistInInclude).mockResolvedValue({
+                members: [mockMembersInInclude[0], mockMembersInInclude[1]] // Mocks the api response of the input
+            });
+
+            const { user } = await setup(
+                `${mockMembersInInclude[0].uhUuid}, ${mockMembersInInclude[0].uid}, ${mockMembersInInclude[1].uhUuid}, ${mockMembersInInclude[1].uid}`
+            );
+            const removeButton = screen.getByLabelText(/remove-member-button/i);
+            await user.click(removeButton);
+
+            // Verify the API was called with all four inputs (both uhUuid and uid for each member)
+            await waitFor(() => {
+                expect(getMembersExistInInclude).toHaveBeenCalledWith('/mock/path', [
+                    mockMembersInInclude[0].uhUuid,
+                    mockMembersInInclude[0].uid,
+                    mockMembersInInclude[1].uhUuid,
+                    mockMembersInInclude[1].uid
+                ]);
+            });
+
+            // Verify the component found both members in the returned list and calls the multiple members modal
+            await waitFor(() => {
+                expect(mockOnOpenManageMembersModal).toHaveBeenCalledWith('removeMembers', [
+                    mockMembersInInclude[0],
+                    mockMembersInInclude[1]
+                ]);
+            });
+
+            expect(mockOnOpenManageMemberModal).not.toHaveBeenCalled();
+        });
+
+        // Input of a member's uhUuid and uid along with duplicate of either identifier should throw duplicate error
+        // Example input: 'inListUID inListUID inListUhuuid'
+        it('should display duplicate members error when removing an input that contains both the uhUuid and uid for a member along with a duplicate of either identifier', async () => {
+            vi.mocked(getMembersExistInInclude).mockResolvedValue({
+                members: [mockMembersInInclude[0]] // Mocks the api response of the input
+            });
+
+            const { user } = await setup(
+                `${mockMembersInInclude[0].uid}, ${mockMembersInInclude[0].uid}, ${mockMembersInInclude[0].uhUuid}`
+            );
+            const removeButton = screen.getByLabelText(/remove-member-button/i);
+            await user.click(removeButton);
+
+            // Verify duplicate error is shown with both uid and uhUuid in the format [uid = uhUuid]
+            await waitFor(() => {
+                expect(
+                    screen.getByText(
+                        new RegExp(
+                            `Duplicate member\\(s\\) in the input:\\s+\\[${mockMembersInInclude[0].uid}\\s+=\\s+${mockMembersInInclude[0].uhUuid}\\]`,
+                            'i'
+                        )
+                    )
+                ).toBeInTheDocument();
+            });
+
+            expect(mockOnOpenManageMembersModal).not.toHaveBeenCalled();
+            expect(mockOnOpenManageMemberModal).not.toHaveBeenCalled();
+        });
+
+        // Input of multiple members' uhUuid and uid along with duplicates of either identifier should throw duplicate error
+        // Example input: 'user1uid user1uid user1uhuuid user2uid user2uhuuid user2uhuuid'
+        it('should display duplicate members error when removing an input that contains both the uhUuid and uid for multiple members along with duplicates of either identifier', async () => {
+            vi.mocked(getMembersExistInInclude).mockResolvedValue({
+                members: [mockMembersInInclude[0], mockMembersInInclude[1]]
+            });
+
+            const { user } = await setup(
+                `${mockMembersInInclude[0].uid},${mockMembersInInclude[0].uid}, ${mockMembersInInclude[0].uhUuid}, 
+                   ${mockMembersInInclude[1].uid}, ${mockMembersInInclude[1].uhUuid}, ${mockMembersInInclude[1].uhUuid}`
+            );
+            const removeButton = screen.getByLabelText(/remove-member-button/i);
+            await user.click(removeButton);
+
+            // Verify duplicate error is shown with both uid and uhUuid for each member in the format [uid = uhUuid]
+            await waitFor(() => {
+                expect(
+                    screen.getByText(
+                        new RegExp(
+                            `Duplicate member\\(s\\) in the input:\\s+\\[${mockMembersInInclude[0].uid}\\s+=\\s+${mockMembersInInclude[0].uhUuid}\\],\\s*\\[${mockMembersInInclude[1].uid}\\s+=\\s+${mockMembersInInclude[1].uhUuid}\\]`,
+                            'i'
+                        )
+                    )
+                ).toBeInTheDocument();
+            });
+
+            expect(mockOnOpenManageMembersModal).not.toHaveBeenCalled();
+            expect(mockOnOpenManageMemberModal).not.toHaveBeenCalled();
+        });
     });
 
-    ////////////////////////
+    ///////////////////////////////////////////////
     // Tests Precedence if there are checkedMembers
-    //////////////////////
+    //////////////////////////////////////////////
 
     // describe('List Management Removal Precedence', () => {});
 
