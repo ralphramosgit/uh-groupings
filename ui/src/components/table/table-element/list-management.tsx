@@ -109,9 +109,8 @@ const ListManagement = ({
             return null;
         }
 
-        // Duplicates handling showing both uid and uhUuid of a member object.
-        const memberInputMap = new Map<string, { member: MemberResult; inputs: string[] }>();
-        const duplicateMembers = new Set<string>();
+        // Duplicates handling: Accept members when BOTH uid and uhUuid are present in input
+        // Only flag as duplicate if a member has duplicates but NOT both identifiers present
 
         // Count how many times each input appears (case-insensitive)
         const inputCounts = new Map<string, number>();
@@ -120,7 +119,95 @@ const ListManagement = ({
             inputCounts.set(normalizedInput, (inputCounts.get(normalizedInput) || 0) + 1);
         }
 
-        // Map each input to the member it represents.
+        // Find which inputs are truly duplicated (same identifier appears more than once)
+        const duplicatedInputs = Array.from(inputCounts.entries())
+            .filter(([_, count]) => count > 1)
+            .map(([input, _]) => input);
+
+        if (duplicatedInputs.length > 0) {
+            // Map all inputs to members to check which identifiers were used
+            const memberInputMap = new Map<
+                string,
+                { member: MemberResult; duplicatedInputs: string[]; allInputs: string[] }
+            >();
+
+            // First, map ALL inputs to members to know what identifiers were used
+            for (const input of validTextInput) {
+                const matchingMember = inList.find(
+                    (member) =>
+                        member.uhUuid.toLowerCase() === input.toLowerCase() ||
+                        member.uid?.toLowerCase() === input.toLowerCase()
+                );
+
+                if (matchingMember) {
+                    const uhUuid = matchingMember.uhUuid;
+
+                    if (!memberInputMap.has(uhUuid)) {
+                        memberInputMap.set(uhUuid, {
+                            member: matchingMember,
+                            duplicatedInputs: [],
+                            allInputs: []
+                        });
+                    }
+                    memberInputMap.get(uhUuid)!.allInputs.push(input.toLowerCase());
+                }
+            }
+
+            // Track which inputs were duplicated for each member
+            for (const duplicatedInput of duplicatedInputs) {
+                const matchingMember = inList.find(
+                    (member) =>
+                        member.uhUuid.toLowerCase() === duplicatedInput ||
+                        member.uid?.toLowerCase() === duplicatedInput
+                );
+
+                if (matchingMember) {
+                    const uhUuid = matchingMember.uhUuid;
+                    memberInputMap.get(uhUuid)!.duplicatedInputs.push(duplicatedInput);
+                }
+            }
+
+            // Build error message - ONLY include members that have duplicates AND NOT both uid and uhUuid present
+            const duplicateDisplayStrings = Array.from(memberInputMap.values())
+                .filter(({ duplicatedInputs, member, allInputs }) => {
+                    if (duplicatedInputs.length === 0) return false;
+
+                    // Check if BOTH uid and uhUuid are present in the input
+                    const hasUidInInput = allInputs.some((input) => input === member.uid.toLowerCase());
+                    const hasUhUuidInInput = allInputs.some((input) => input === member.uhUuid.toLowerCase());
+
+                    // If both are present, ACCEPT this member (don't include in error)
+                    if (hasUidInInput && hasUhUuidInInput) {
+                        return false;
+                    }
+
+                    // Otherwise, this is a true duplicate error
+                    return true;
+                })
+                .map(({ member, allInputs }) => {
+                    const hasUidInInput = allInputs.some((input) => input === member.uid.toLowerCase());
+                    const hasUhUuidInInput = allInputs.some((input) => input === member.uhUuid.toLowerCase());
+
+                    if (hasUidInInput && hasUhUuidInInput) {
+                        return `[${member.uid} = ${member.uhUuid}]`;
+                    } else if (hasUidInInput) {
+                        return `[${member.uid}]`;
+                    } else {
+                        return `[${member.uhUuid}]`;
+                    }
+                });
+
+            // Only show error if there are actual duplicate issues
+            if (duplicateDisplayStrings.length > 0) {
+                setErrorMessage(
+                    `${message.ListManagement.ERROR.DUPLICATE_MEMBERS_INPUT} ${duplicateDisplayStrings.join(', ')}`
+                );
+                return null;
+            }
+        }
+
+        // Map each input to the member it represents for deduplication
+        const memberInputMap = new Map<string, { member: MemberResult; inputs: string[] }>();
         for (const input of validTextInput) {
             const matchingMember = inList.find(
                 (member) => member.uhUuid === input || member.uid?.toLowerCase() === input.toLowerCase()
@@ -134,43 +221,6 @@ const ListManagement = ({
                 }
                 memberInputMap.get(uhUuid)!.inputs.push(input);
             }
-        }
-
-        // Find members where the SAME input was entered multiple times (true duplicates).
-        for (const [uhUuid, { inputs }] of memberInputMap.entries()) {
-            const hasDuplicateInput = inputs.some((input) => {
-                const normalizedInput = input.toLowerCase();
-                return (inputCounts.get(normalizedInput) || 0) > 1;
-            });
-
-            if (hasDuplicateInput) {
-                duplicateMembers.add(uhUuid);
-            }
-        }
-
-        // Condition duplicates error message to display uid, uhUuid, or both based on input
-        if (duplicateMembers.size > 0) {
-            const duplicateDisplayStrings = Array.from(duplicateMembers).map((uhUuid) => {
-                const memberData = memberInputMap.get(uhUuid)!;
-                const member = memberData.member;
-                const inputs = memberData.inputs;
-
-                const hasUhUuidInput = inputs.some((input) => input === member.uhUuid);
-                const hasUidInput = inputs.some((input) => input.toLowerCase() === member.uid.toLowerCase());
-
-                if (hasUhUuidInput && hasUidInput) {
-                    return `[${member.uid} = ${member.uhUuid}]`;
-                } else if (hasUidInput) {
-                    return `[${member.uid}]`;
-                } else {
-                    return `[${member.uhUuid}]`;
-                }
-            });
-
-            setErrorMessage(
-                `${message.ListManagement.ERROR.DUPLICATE_MEMBERS_INPUT} ${duplicateDisplayStrings.join(', ')}`
-            );
-            return null;
         }
 
         // Deduplicate members by uhUuid before returning (in case both uid and uhUuid were entered for same person)

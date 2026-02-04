@@ -729,7 +729,7 @@ describe('ListManagement Component', () => {
         };
 
         // Input with a single member of duplicate uhUuids
-        it('should display duplicate members error when removing duplicate members in input', async () => {
+        it('should display duplicate members error when removing duplicate uhIdentifiers in input of a single member', async () => {
             vi.mocked(getMembersExistInInclude).mockResolvedValue({
                 members: [mockMembersInInclude[0]] // Mocks the api response of the input, the response of the API request
             });
@@ -781,7 +781,7 @@ describe('ListManagement Component', () => {
         // example input: 'inListUID inListUhuuid'
         it('should accept when removing an input that contains both the uhUuid and uid of a member', async () => {
             vi.mocked(getMembersExistInInclude).mockResolvedValue({
-                members: [mockMembersInInclude[0]] // Mocks the api response of the input, the response of the API request
+                members: [mockMembersInInclude[0]]
             });
 
             const { user } = await setup(`${mockMembersInInclude[0].uhUuid}, ${mockMembersInInclude[0].uid}`);
@@ -838,11 +838,11 @@ describe('ListManagement Component', () => {
             expect(mockOnOpenManageMemberModal).not.toHaveBeenCalled();
         });
 
-        // Input of a member's uhUuid and uid along with duplicate of either identifier should throw duplicate error
-        // Example input: 'inListUID inListUID inListUhuuid'
-        it('should display duplicate members error when removing an input that contains both the uhUuid and uid for a member along with a duplicate of either identifier', async () => {
+        // Input of a member's uhUuid and uid along with duplicate of either identifier should ACCEPT
+        // Example input: 'inListUID inListUID inListUhuuid' - both identifiers present, so accept
+        it('should accept when removing an input that contains both the uhUuid and uid for a member along with a duplicate of either identifier', async () => {
             vi.mocked(getMembersExistInInclude).mockResolvedValue({
-                members: [mockMembersInInclude[0]] // Mocks the api response of the input
+                members: [mockMembersInInclude[0]]
             });
 
             const { user } = await setup(
@@ -851,25 +851,26 @@ describe('ListManagement Component', () => {
             const removeButton = screen.getByLabelText(/remove-member-button/i);
             await user.click(removeButton);
 
-            // Verify duplicate error is shown with both uid and uhUuid in the format [uid = uhUuid]
+            // Verify the API was called with the correct input
             await waitFor(() => {
-                expect(
-                    screen.getByText(
-                        new RegExp(
-                            `Duplicate member\\(s\\) in the input:\\s+\\[${mockMembersInInclude[0].uid}\\s+=\\s+${mockMembersInInclude[0].uhUuid}\\]`,
-                            'i'
-                        )
-                    )
-                ).toBeInTheDocument();
+                expect(getMembersExistInInclude).toHaveBeenCalledWith('/mock/path', [
+                    mockMembersInInclude[0].uid,
+                    mockMembersInInclude[0].uid,
+                    mockMembersInInclude[0].uhUuid
+                ]);
+            });
+
+            // Verify the component accepts it and calls modal (since both uid and uhUuid are present)
+            await waitFor(() => {
+                expect(mockOnOpenManageMemberModal).toHaveBeenCalledWith('removeMembers', [mockMembersInInclude[0]]);
             });
 
             expect(mockOnOpenManageMembersModal).not.toHaveBeenCalled();
-            expect(mockOnOpenManageMemberModal).not.toHaveBeenCalled();
         });
 
-        // Input of multiple members' uhUuid and uid along with duplicates of either identifier should throw duplicate error
-        // Example input: 'user1uid user1uid user1uhuuid user2uid user2uhuuid user2uhuuid'
-        it('should display duplicate members error when removing an input that contains both the uhUuid and uid for multiple members along with duplicates of either identifier', async () => {
+        // Input of multiple members' uhUuid and uid along with duplicates of either identifier should ACCEPT
+        // Example input: 'user1uid user1uid user1uhuuid user2uid user2uhuuid user2uhuuid' - both identifiers present for each, so accept
+        it('should accept when removing an input that contains both the uhUuid and uid for multiple members along with duplicates of either identifier', async () => {
             vi.mocked(getMembersExistInInclude).mockResolvedValue({
                 members: [mockMembersInInclude[0], mockMembersInInclude[1]]
             });
@@ -881,19 +882,19 @@ describe('ListManagement Component', () => {
             const removeButton = screen.getByLabelText(/remove-member-button/i);
             await user.click(removeButton);
 
-            // Verify duplicate error is shown with both uid and uhUuid for each member in the format [uid = uhUuid]
+            // Verify the API was called with all inputs
             await waitFor(() => {
-                expect(
-                    screen.getByText(
-                        new RegExp(
-                            `Duplicate member\\(s\\) in the input:\\s+\\[${mockMembersInInclude[0].uid}\\s+=\\s+${mockMembersInInclude[0].uhUuid}\\],\\s*\\[${mockMembersInInclude[1].uid}\\s+=\\s+${mockMembersInInclude[1].uhUuid}\\]`,
-                            'i'
-                        )
-                    )
-                ).toBeInTheDocument();
+                expect(getMembersExistInInclude).toHaveBeenCalled();
             });
 
-            expect(mockOnOpenManageMembersModal).not.toHaveBeenCalled();
+            // Verify the component accepts it and calls modal with both members (since both identifiers are present for each)
+            await waitFor(() => {
+                expect(mockOnOpenManageMembersModal).toHaveBeenCalledWith('removeMembers', [
+                    mockMembersInInclude[0],
+                    mockMembersInInclude[1]
+                ]);
+            });
+
             expect(mockOnOpenManageMemberModal).not.toHaveBeenCalled();
         });
     });
