@@ -68,13 +68,13 @@ const ListManagement = ({
         let response;
         switch (list) {
             case 'include':
-                response = await getMembersExistInInclude(groupingPath, validTextInput);
+                response = await getMembersExistInInclude(groupingPath, validTextInput ?? []);
                 break;
             case 'exclude':
-                response = await getMembersExistInExclude(groupingPath, validTextInput);
+                response = await getMembersExistInExclude(groupingPath, validTextInput ?? []);
                 break;
             case 'owners':
-                response = await getMembersExistInOwners(groupingPath, validTextInput);
+                response = await getMembersExistInOwners(groupingPath, validTextInput ?? []);
                 break;
             default:
                 console.error(`Unknown list type: ${list}`);
@@ -114,7 +114,7 @@ const ListManagement = ({
 
         // Count how many times each input appears (case-insensitive)
         const inputCounts = new Map<string, number>();
-        for (const input of validTextInput) {
+        for (const input of validTextInput ?? []) {
             const normalizedInput = input.toLowerCase();
             inputCounts.set(normalizedInput, (inputCounts.get(normalizedInput) || 0) + 1);
         }
@@ -132,7 +132,7 @@ const ListManagement = ({
             >();
 
             // First, map ALL inputs to members to know what identifiers were used
-            for (const input of validTextInput) {
+            for (const input of validTextInput ?? []) {
                 const matchingMember = inList.find(
                     (member) =>
                         member.uhUuid.toLowerCase() === input.toLowerCase() ||
@@ -157,8 +157,7 @@ const ListManagement = ({
             for (const duplicatedInput of duplicatedInputs) {
                 const matchingMember = inList.find(
                     (member) =>
-                        member.uhUuid.toLowerCase() === duplicatedInput ||
-                        member.uid?.toLowerCase() === duplicatedInput
+                        member.uhUuid.toLowerCase() === duplicatedInput || member.uid?.toLowerCase() === duplicatedInput
                 );
 
                 if (matchingMember) {
@@ -208,7 +207,7 @@ const ListManagement = ({
 
         // Map each input to the member it represents for deduplication
         const memberInputMap = new Map<string, { member: MemberResult; inputs: string[] }>();
-        for (const input of validTextInput) {
+        for (const input of validTextInput ?? []) {
             const matchingMember = inList.find(
                 (member) => member.uhUuid === input || member.uid?.toLowerCase() === input.toLowerCase()
             );
@@ -258,6 +257,10 @@ const ListManagement = ({
 
     // Handle List management using the checkbox from the table.
     const handleCheckedMembers = async (manageType: string) => {
+        if (!checkedMembers || checkedMembers.length === 0) {
+            return;
+        }
+
         if (checkedMembers.length === 1) {
             await handleLoadingAndOpenModal(() => {
                 onOpenManageMemberModal?.(manageType, checkedMembers);
@@ -330,7 +333,6 @@ const ListManagement = ({
                             <div className="memBtns h-[44px]">
                                 <Button
                                     variant="default"
-                                    alt="Add Member"
                                     size="default"
                                     aria-label="add-member-button"
                                     data-testid="add-member-button"
@@ -347,7 +349,6 @@ const ListManagement = ({
                                 </Button>
                                 <Button
                                     variant="removal"
-                                    alt="Remove Member"
                                     size="default"
                                     aria-label="remove-member-button"
                                     data-testid="remove-member-button"

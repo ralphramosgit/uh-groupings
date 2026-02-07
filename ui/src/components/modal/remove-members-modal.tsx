@@ -29,6 +29,7 @@ const RemoveMembersModal = ({
     onClose: () => void;
     membersToRemove: Array<{ uid: string; uhUuid: string; name: string }>;
     group: string;
+    groupingPath: string;
     onSuccess: () => void;
     onProcessing: () => void;
 }) => {
