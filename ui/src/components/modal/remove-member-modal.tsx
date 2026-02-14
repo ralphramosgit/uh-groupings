@@ -72,7 +72,6 @@ const RemoveMemberModal = ({
             <AlertDialogContent
                 data-testid="remove-member-modal"
                 className="max-w-[484px] sm:max-w-[500px] max-h-[90vh] rounded flex flex-col"
-                onInteractOutside={(e) => e.preventDefault()}
                 onCloseAutoFocus={(e) => {
                     e.preventDefault();
                     document.body.focus();

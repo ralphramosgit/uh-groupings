@@ -121,8 +121,8 @@ const ListManagement = ({
 
         // Find which inputs are truly duplicated (same identifier appears more than once)
         const duplicatedInputs = Array.from(inputCounts.entries())
-            .filter(([_, count]) => count > 1)
-            .map(([input, _]) => input);
+            .filter(([, count]) => count > 1)
+            .map(([input]) => input);
 
         if (duplicatedInputs.length > 0) {
             // Map all inputs to members to check which identifiers were used

@@ -10,7 +10,7 @@ import {
     useReactTable
 } from '@tanstack/react-table';
 import GroupingMembersTableColumns from './table-element/grouping-members-table-columns';
-import { Group, GroupingGroupMembers, MemberResult } from '@/lib/types';
+import { Group, GroupingGroupMember, GroupingGroupMembers, GroupingMember, MemberResult } from '@/lib/types';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import SortArrow from '@/components/table/table-element/sort-arrow';
 import ListManagement from '@/components/table/table-element/list-management';
@@ -55,7 +55,7 @@ const GroupingMembersTable = ({
     groupingPath: string;
     group?: Group;
 }) => {
-    const { members, size } = groupingGroupMembers;
+    const { members } = groupingGroupMembers;
     const queryStateOptions: Omit<UseQueryStateOptions<string>, 'parse'> = {
         history: 'replace',
         scroll: false,
@@ -133,26 +133,21 @@ const GroupingMembersTable = ({
     const [isRemoveMemberModalOpen, setIsRemoveMemberModalOpen] = useState(false);
     const [isRemoveMembersModalOpen, setIsRemoveMembersModalOpen] = useState(false);
     const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
-    const [memberToManage, setMemberToManage] = useState<GroupingGroupMembers['members'][0]>(null);
-    const [membersToManage, setMembersToManage] = useState<GroupingGroupMembers['members']>([]);
+    const [memberToManage, setMemberToManage] = useState<MemberResult | null>(null);
+    const [membersToManage, setMembersToManage] = useState<MemberResult[]>([]);
     const [membersToManageCount, setMembersToManageCount] = useState(0);
     const [manageType, setManageType] = useState<string>('');
     const router = useRouter();
     const [rowSelection, setRowSelection] = useState({});
     const [isPerformingRemoval, setIsPerformingRemoval] = useState(false);
 
-    const handleOpenManageMemberModal = (manageType: string, membersInList: GroupingGroupMembers['members']) => {
+    const handleOpenManageMemberModal = (manageType: string, membersInList: MemberResult[]) => {
         if (membersInList.length === 1) {
             const member = membersInList[0];
             const validUid = member.uid?.trim() ? member.uid : 'N/A';
             setManageType(manageType);
 
             setMemberToManage({
-                groupPath: '',
-                members: [],
-                size: 0,
-                resultCode: '',
-                whereListed: '',
                 uid: validUid,
                 name: member.name,
                 uhUuid: member.uhUuid,
@@ -178,15 +173,10 @@ const GroupingMembersTable = ({
         }
     };
 
-    const handleOpenManageMembersModal = (manageType: string, membersInList: GroupingGroupMembers['members']) => {
+    const handleOpenManageMembersModal = (manageType: string, membersInList: MemberResult[]) => {
         const validMembers = membersInList.map((member) => {
             const validUid = !member.uid || member.uid.trim() === '' ? 'N/A' : member.uid;
             return {
-                groupPath: '',
-                members: [],
-                size: 0,
-                resultCode: '',
-                whereListed: '',
                 uid: validUid,
                 name: member.name,
                 uhUuid: member.uhUuid,
@@ -293,7 +283,7 @@ const GroupingMembersTable = ({
         enableSortingRemoval: false,
         enableRowSelection: true,
         enableMultiRowSelection: true,
-        getRowId: (row: MemberResult) => row.uhUuid
+        getRowId: (row: GroupingGroupMember | GroupingMember) => row.uhUuid
     });
 
     return (
@@ -470,13 +460,13 @@ const GroupingMembersTable = ({
                     isOpen={isSuccessModalOpen}
                     onClose={handleCloseSuccessModal}
                     name={membersToManageCount === 1 ? memberToManage?.name || membersToManage[0]?.name || '' : ''}
-                    group={group}
+                    group={group || ''}
                     manageType={manageType}
                     memberCount={membersToManageCount}
                 />
             )}
 
-            <PaginationBar table={table} groupingPath={groupingPath} />
+            <PaginationBar table={table} />
         </div>
     );
 };
