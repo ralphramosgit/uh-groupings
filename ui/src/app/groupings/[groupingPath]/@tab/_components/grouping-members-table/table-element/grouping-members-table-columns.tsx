@@ -1,5 +1,5 @@
 import { Group, GroupingGroupMember, GroupingGroupMembers, GroupingMember } from '@/lib/types';
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef, Table, Row } from '@tanstack/react-table';
 import GroupingMemberUidCell from './grouping-member-uid-cell';
 import GroupingMemberWhereListedCell from './grouping-member-where-listed-cell';
 import GroupingMemberIsBasisCell from './grouping-member-is-basis-cell';
@@ -20,7 +20,7 @@ const GroupingMembersTableColumns = (
             ? [
                   {
                       id: 'select',
-                      header: ({ table }) => (
+                      header: ({ table }: { table: Table<GroupingGroupMember | GroupingMember> }) => (
                           <div className="flex flex-col-reverse md:flex-row items-center justify-center">
                               <input
                                   type="checkbox"
@@ -50,7 +50,7 @@ const GroupingMembersTableColumns = (
                               </div>
                           </div>
                       ),
-                      cell: ({ row }) => (
+                      cell: ({ row }: { row: Row<GroupingGroupMember | GroupingMember> }) => (
                           <span className="flex items-center justify-center">
                               <input
                                   type="checkbox"

@@ -2,7 +2,7 @@ import GroupingMembersTable from '@/app/groupings/[groupingPath]/@tab/_component
 import { GroupingGroupMember, GroupingGroupMembers } from '@/lib/types';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { createMockProviders } from 'tests/vitest.setup';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import * as Actions from '@/lib/actions';
 import userEvent from '@testing-library/user-event';
 import { type OnUrlUpdateFunction } from 'nuqs/adapters/testing';
@@ -159,27 +159,8 @@ describe('GroupingMembersTable', () => {
         });
 
         describe('Checkbox Column', () => {
-            it.each(['include', 'exclude'])('should display the checkbox column in the %s tab', async (tab) => {
-                render(
-                    <GroupingMembersTable
-                        groupingGroupMembers={mockGroupingGroupMembers}
-                        groupingPath={groupingPath}
-                        group={tab}
-                    />,
-                    {
-                        wrapper: createMockProviders()
-                    }
-                );
-
-                // Verify presence of "select all rows" checkbox.
-                expect(screen.getByRole('checkbox', { name: /select all rows/i })).toBeInTheDocument();
-                // Verify presence of row checkboxes.
-                const rowCheckBoxes = screen.getAllByRole('checkbox', { name: /select row/i });
-                expect(rowCheckBoxes).toHaveLength(mockGroupingGroupMembers.members.length);
-            });
-
-            it.each(['allMembers', 'basis', 'owners'])(
-                'should NOT display the checkbox column in the %s tab',
+            it.each(['include', 'exclude'] as const)(
+                'should display the checkbox column in the %s tab',
                 async (tab) => {
                     render(
                         <GroupingMembersTable
@@ -192,14 +173,37 @@ describe('GroupingMembersTable', () => {
                         }
                     );
 
-                    // Verify absence of select all rows checkbox.
-                    expect(screen.queryByRole('checkbox', { name: /select all rows/i })).not.toBeInTheDocument();
-
-                    // Verify Absence of row checkboxes.
-                    const rowCheckBoxes = screen.queryAllByRole('checkbox', { name: /select row/i });
-                    expect(rowCheckBoxes).toHaveLength(0);
+                    // Verify presence of "select all rows" checkbox.
+                    expect(screen.getByRole('checkbox', { name: /select all rows/i })).toBeInTheDocument();
+                    // Verify presence of row checkboxes.
+                    const rowCheckBoxes = screen.getAllByRole('checkbox', { name: /select row/i });
+                    expect(rowCheckBoxes).toHaveLength(mockGroupingGroupMembers.members.length);
                 }
             );
+
+            it.each([
+                { name: 'allMembers', group: undefined },
+                { name: 'basis', group: 'basis' as const },
+                { name: 'owners', group: 'owners' as const }
+            ])('should NOT display the checkbox column in the $name tab', async ({ group }) => {
+                render(
+                    <GroupingMembersTable
+                        groupingGroupMembers={mockGroupingGroupMembers}
+                        groupingPath={groupingPath}
+                        group={group}
+                    />,
+                    {
+                        wrapper: createMockProviders()
+                    }
+                );
+
+                // Verify absence of select all rows checkbox.
+                expect(screen.queryByRole('checkbox', { name: /select all rows/i })).not.toBeInTheDocument();
+
+                // Verify Absence of row checkboxes.
+                const rowCheckBoxes = screen.queryAllByRole('checkbox', { name: /select row/i });
+                expect(rowCheckBoxes).toHaveLength(0);
+            });
 
             describe('Checkbox Selection Behavior', () => {
                 let user: ReturnType<typeof userEvent.setup>;
@@ -356,9 +360,9 @@ describe('GroupingMembersTable', () => {
 
         // Check for trash icon
         describe('Trash Icon', () => {
-            const tabsWithTrashIcon = ['include', 'exclude', 'owners'];
+            const tabsWithTrashIcon = ['include', 'exclude', 'owners'] as const;
 
-            test.each(tabsWithTrashIcon)('should display trash icon in the %s tab', async (tab) => {
+            it.each(tabsWithTrashIcon)('should display trash icon in the %s tab', async (tab) => {
                 const user = userEvent.setup();
                 render(
                     <GroupingMembersTable
@@ -377,14 +381,15 @@ describe('GroupingMembersTable', () => {
             });
 
             // Absence of trash icons in All Members and Basis tabs
-            const tabsWithoutTrashIcon = ['allMembers', 'basis'];
-
-            test.each(tabsWithoutTrashIcon)('should not display trash icon in the %s tab', async (tab) => {
+            it.each([
+                { name: 'allMembers', group: undefined },
+                { name: 'basis', group: 'basis' as const }
+            ])('should not display trash icon in the $name tab', async ({ group }) => {
                 render(
                     <GroupingMembersTable
                         groupingGroupMembers={mockGroupingGroupMembers}
                         groupingPath={groupingPath}
-                        group={tab}
+                        group={group}
                     />,
                     {
                         wrapper: createMockProviders()
@@ -668,7 +673,7 @@ describe('GroupingMembersTable', () => {
         //   should display input box, add button and remove button in include, exclude, and owners tab
         //     should display import file button in include and exclude tab
 
-        test.each(['include', 'exclude', 'owners'])(
+        it.each(['include', 'exclude', 'owners'] as const)(
             'should display ListManagement inputbox, add, and remove buttons in the %s tab',
             async (tab) => {
                 render(
@@ -690,7 +695,7 @@ describe('GroupingMembersTable', () => {
         );
 
         //Include and exclude tabs should have import file button
-        test.each(['include', 'exclude'])(
+        it.each(['include', 'exclude'] as const)(
             'should display ListManagement import file button in the %s tab',
             async (tab) => {
                 render(
@@ -727,12 +732,15 @@ describe('GroupingMembersTable', () => {
         });
 
         // Absence of ListManagement component in All Members and Basis tabs
-        test.each(['allMembers', 'basis'])('should NOT display ListManagement component in the %s tab', async (tab) => {
+        it.each([
+            { name: 'allMembers', group: undefined },
+            { name: 'basis', group: 'basis' as const }
+        ])('should NOT display ListManagement component in the $name tab', async ({ group }) => {
             render(
                 <GroupingMembersTable
                     groupingGroupMembers={mockGroupingGroupMembers}
                     groupingPath={groupingPath}
-                    group={tab}
+                    group={group}
                 />,
                 {
                     wrapper: createMockProviders()
