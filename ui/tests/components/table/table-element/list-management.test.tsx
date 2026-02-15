@@ -506,6 +506,8 @@ describe('ListManagement Component', () => {
     describe('ListManagement - Members In/Not In Include List Validation', () => {
         const mockOnOpenManageMemberModal = vi.fn();
         const mockOnOpenManageMembersModal = vi.fn();
+        const mockMembersInList = mockMembersInInclude;
+        const mockMembersNotInList = mockMembersInExclude;
 
         beforeEach(() => {
             vi.clearAllMocks();
@@ -538,7 +540,7 @@ describe('ListManagement Component', () => {
                 members: [] // Mocks the api response that none of the inputs of the user are in the include list
             });
 
-            const { user } = await setup(mockMembersInExclude[0].uhUuid);
+            const { user } = await setup(mockMembersNotInList[0].uhUuid);
             const removeButton = screen.getByLabelText(/remove-member-button/i);
 
             await user.click(removeButton);
@@ -546,7 +548,7 @@ describe('ListManagement Component', () => {
             await waitFor(() => {
                 expect(
                     screen.getByText(
-                        new RegExp(`Member\\(s\\) not in the list: ${mockMembersInExclude[0].uhUuid}`, 'i')
+                        new RegExp(`Member\\(s\\) not in the list: ${mockMembersNotInList[0].uhUuid}`, 'i')
                     )
                 ).toBeInTheDocument();
             });
@@ -561,7 +563,7 @@ describe('ListManagement Component', () => {
                 members: [] // Mocks the api response that none of the inputs of the user are in the include list
             });
 
-            const { user } = await setup(`${mockMembersInExclude[0].uhUuid}, ${mockMembersInExclude[1].uhUuid}`);
+            const { user } = await setup(`${mockMembersNotInList[0].uhUuid}, ${mockMembersNotInList[1].uhUuid}`);
             const removeButton = screen.getByLabelText(/remove-member-button/i);
 
             await user.click(removeButton);
@@ -570,7 +572,7 @@ describe('ListManagement Component', () => {
                 expect(
                     screen.getByText(
                         new RegExp(
-                            `Member\\(s\\) not in the list:\\s+${mockMembersInExclude[0].uhUuid},\\s+${mockMembersInExclude[1].uhUuid}`,
+                            `Member\\(s\\) not in the list:\\s+${mockMembersNotInList[0].uhUuid},\\s+${mockMembersNotInList[1].uhUuid}`,
                             'i'
                         )
                     )
@@ -587,12 +589,12 @@ describe('ListManagement Component', () => {
 
         it('should display member not in include list error with an removal input of members in the include list and one member not in the include list', async () => {
             vi.mocked(getMembersExistInInclude).mockResolvedValue({
-                members: [mockMembersInInclude[0], mockMembersInInclude[1]] // Mocks the api response that some members of the user input are in the include list
+                members: [mockMembersInList[0], mockMembersInList[1]] // Mocks the api response that some members of the user input are in the include list
             });
             // example input: 'inList1 inList2 notInList1'
 
             const { user } = await setup(
-                `${mockMembersInExclude[0].uhUuid}, ${mockMembersInInclude[0].uhUuid}, ${mockMembersInInclude[1].uhUuid}`
+                `${mockMembersNotInList[0].uhUuid}, ${mockMembersInList[0].uhUuid}, ${mockMembersInList[1].uhUuid}`
             );
             const removeButton = screen.getByLabelText(/remove-member-button/i);
 
@@ -601,7 +603,7 @@ describe('ListManagement Component', () => {
             await waitFor(() => {
                 expect(
                     screen.getByText(
-                        new RegExp(`Member\\(s\\) not in the list: ${mockMembersInExclude[0].uhUuid}`, 'i')
+                        new RegExp(`Member\\(s\\) not in the list: ${mockMembersNotInList[0].uhUuid}`, 'i')
                     )
                 ).toBeInTheDocument();
             });
@@ -612,12 +614,12 @@ describe('ListManagement Component', () => {
 
         it('should display members not-in-include-list error with a removal input of members in the include list and members not in the include list', async () => {
             vi.mocked(getMembersExistInInclude).mockResolvedValue({
-                members: [mockMembersInInclude[0], mockMembersInInclude[1]] // Mocks the api response that some members of the user input are in the include list
+                members: [mockMembersInList[0], mockMembersInList[1]] // Mocks the api response that some members of the user input are in the include list
             });
             // example input: 'inList1 inList2 notInList1 notInList2'
 
             const { user } = await setup(
-                `${mockMembersInExclude[0].uhUuid}, ${mockMembersInExclude[1].uhUuid}, ${mockMembersInInclude[0].uhUuid}, ${mockMembersInInclude[1].uhUuid}`
+                `${mockMembersNotInList[0].uhUuid}, ${mockMembersNotInList[1].uhUuid}, ${mockMembersInList[0].uhUuid}, ${mockMembersInList[1].uhUuid}`
             );
             const removeButton = screen.getByLabelText(/remove-member-button/i);
 
@@ -627,7 +629,7 @@ describe('ListManagement Component', () => {
                 expect(
                     screen.getByText(
                         new RegExp(
-                            `Member\\(s\\) not in the list: ${mockMembersInExclude[0].uhUuid}, ${mockMembersInExclude[1].uhUuid}`,
+                            `Member\\(s\\) not in the list: ${mockMembersNotInList[0].uhUuid}, ${mockMembersNotInList[1].uhUuid}`,
                             'i'
                         )
                     )
@@ -645,22 +647,22 @@ describe('ListManagement Component', () => {
         // Singular member input in include list
         it('should accept the valid singular member input in the include list', async () => {
             vi.mocked(getMembersExistInInclude).mockResolvedValue({
-                members: [mockMembersInInclude[0]] // Mocks the api response of the input, the response of the API request
+                members: [mockMembersInList[0]] // Mocks the api response of the input, the response of the API request
             });
 
-            const { user } = await setup(mockMembersInInclude[0].uhUuid);
+            const { user } = await setup(mockMembersInList[0].uhUuid);
             const removeButton = screen.getByLabelText(/remove-member-button/i);
 
             await user.click(removeButton);
 
             // Verify the API was called with the correct input
             await waitFor(() => {
-                expect(getMembersExistInInclude).toHaveBeenCalledWith('/mock/path', [mockMembersInInclude[0].uhUuid]);
+                expect(getMembersExistInInclude).toHaveBeenCalledWith('/mock/path', [mockMembersInList[0].uhUuid]);
             });
 
-            // Verify the component found testiwta in the returned list and calls modal
+            // Verify the component found the member in the returned list and calls modal
             await waitFor(() => {
-                expect(mockOnOpenManageMemberModal).toHaveBeenCalledWith('removeMembers', [mockMembersInInclude[0]]);
+                expect(mockOnOpenManageMemberModal).toHaveBeenCalledWith('removeMembers', [mockMembersInList[0]]);
             });
 
             expect(mockOnOpenManageMembersModal).not.toHaveBeenCalled();
@@ -669,11 +671,11 @@ describe('ListManagement Component', () => {
         // Multiple members input in include list
         it('should accept the valid multiple members input in the include list', async () => {
             vi.mocked(getMembersExistInInclude).mockResolvedValue({
-                members: mockMembersInInclude
+                members: mockMembersInList
             });
 
             const { user } = await setup(
-                `${mockMembersInInclude[0].uhUuid}, ${mockMembersInInclude[1].uhUuid}, ${mockMembersInInclude[2].uhUuid}`
+                `${mockMembersInList[0].uhUuid}, ${mockMembersInList[1].uhUuid}, ${mockMembersInList[2].uhUuid}`
             );
             const removeButton = screen.getByLabelText(/remove-member-button/i);
 
@@ -681,14 +683,400 @@ describe('ListManagement Component', () => {
 
             await waitFor(() => {
                 expect(getMembersExistInInclude).toHaveBeenCalledWith('/mock/path', [
-                    mockMembersInInclude[0].uhUuid,
-                    mockMembersInInclude[1].uhUuid,
-                    mockMembersInInclude[2].uhUuid
+                    mockMembersInList[0].uhUuid,
+                    mockMembersInList[1].uhUuid,
+                    mockMembersInList[2].uhUuid
                 ]);
             });
 
             await waitFor(() => {
-                expect(mockOnOpenManageMembersModal).toHaveBeenCalledWith('removeMembers', mockMembersInInclude);
+                expect(mockOnOpenManageMembersModal).toHaveBeenCalledWith('removeMembers', mockMembersInList);
+            });
+
+            expect(mockOnOpenManageMemberModal).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('ListManagement - Members In/Not In Exclude List Validation', () => {
+        const mockOnOpenManageMemberModal = vi.fn();
+        const mockOnOpenManageMembersModal = vi.fn();
+        const mockMembersInList = mockMembersInExclude;
+        const mockMembersNotInList = mockMembersInInclude;
+
+        beforeEach(() => {
+            vi.clearAllMocks();
+        });
+
+        const setup = async (inputValue: string) => {
+            const user = userEvent.setup();
+            render(
+                <ListManagement
+                    list="exclude"
+                    groupingPath="/mock/path"
+                    onOpenManageMemberModal={mockOnOpenManageMemberModal}
+                    onOpenManageMembersModal={mockOnOpenManageMembersModal}
+                    checkedMembers={[]}
+                    isPerformingRemoval={false}
+                />
+            );
+
+            const inputBox = screen.getByPlaceholderText(/UH Username or UH Number/i);
+            if (inputValue) {
+                await user.type(inputBox, inputValue);
+            }
+
+            return { user, inputBox };
+        };
+
+        // Singular member input not in exclude list, input of 1 member only
+        it('should display member not in exclude list error when removing a member not in the exclude list', async () => {
+            vi.mocked(getMembersExistInExclude).mockResolvedValue({
+                members: [] // Mocks the api response that none of the inputs of the user are in the exclude list
+            });
+
+            const { user } = await setup(mockMembersNotInList[0].uhUuid);
+            const removeButton = screen.getByLabelText(/remove-member-button/i);
+
+            await user.click(removeButton);
+
+            await waitFor(() => {
+                expect(
+                    screen.getByText(
+                        new RegExp(`Member\\(s\\) not in the list: ${mockMembersNotInList[0].uhUuid}`, 'i')
+                    )
+                ).toBeInTheDocument();
+            });
+
+            expect(mockOnOpenManageMembersModal).not.toHaveBeenCalled();
+            expect(mockOnOpenManageMemberModal).not.toHaveBeenCalled();
+        });
+
+        // Multiple members input not in exclude list, all inputs are not in the exclude list
+        it('should display members not in exclude list error when removing multiple members not in the exclude list', async () => {
+            vi.mocked(getMembersExistInExclude).mockResolvedValue({
+                members: [] // Mocks the api response that none of the inputs of the user are in the exclude list
+            });
+
+            const { user } = await setup(`${mockMembersNotInList[0].uhUuid}, ${mockMembersNotInList[1].uhUuid}`);
+            const removeButton = screen.getByLabelText(/remove-member-button/i);
+
+            await user.click(removeButton);
+
+            await waitFor(() => {
+                expect(
+                    screen.getByText(
+                        new RegExp(
+                            `Member\\(s\\) not in the list:\\s+${mockMembersNotInList[0].uhUuid},\\s+${mockMembersNotInList[1].uhUuid}`,
+                            'i'
+                        )
+                    )
+                ).toBeInTheDocument();
+            });
+
+            expect(mockOnOpenManageMembersModal).not.toHaveBeenCalled();
+            expect(mockOnOpenManageMemberModal).not.toHaveBeenCalled();
+        });
+
+        /////////////////////////////////////////////////////////////////////////
+        // Input contains members in the exclude list and not in the exclude list
+        /////////////////////////////////////////////////////////////////////////
+
+        it('should display member not in exclude list error with an removal input of members in the exclude list and one member not in the exclude list', async () => {
+            vi.mocked(getMembersExistInExclude).mockResolvedValue({
+                members: [mockMembersInList[0], mockMembersInList[1]] // Mocks the api response that some members of the user input are in the exclude list
+            });
+            // example input: 'inList1 inList2 notInList1'
+
+            const { user } = await setup(
+                `${mockMembersNotInList[0].uhUuid}, ${mockMembersInList[0].uhUuid}, ${mockMembersInList[1].uhUuid}`
+            );
+            const removeButton = screen.getByLabelText(/remove-member-button/i);
+
+            await user.click(removeButton);
+
+            await waitFor(() => {
+                expect(
+                    screen.getByText(
+                        new RegExp(`Member\\(s\\) not in the list: ${mockMembersNotInList[0].uhUuid}`, 'i')
+                    )
+                ).toBeInTheDocument();
+            });
+
+            expect(mockOnOpenManageMembersModal).not.toHaveBeenCalled();
+            expect(mockOnOpenManageMemberModal).not.toHaveBeenCalled();
+        });
+
+        it('should display members not-in-exclude-list error with a removal input of members in the exclude list and members not in the exclude list', async () => {
+            vi.mocked(getMembersExistInExclude).mockResolvedValue({
+                members: [mockMembersInList[0], mockMembersInList[1]] // Mocks the api response that some members of the user input are in the exclude list
+            });
+            // example input: 'inList1 inList2 notInList1 notInList2'
+
+            const { user } = await setup(
+                `${mockMembersNotInList[0].uhUuid}, ${mockMembersNotInList[1].uhUuid}, ${mockMembersInList[0].uhUuid}, ${mockMembersInList[1].uhUuid}`
+            );
+            const removeButton = screen.getByLabelText(/remove-member-button/i);
+
+            await user.click(removeButton);
+
+            await waitFor(() => {
+                expect(
+                    screen.getByText(
+                        new RegExp(
+                            `Member\\(s\\) not in the list: ${mockMembersNotInList[0].uhUuid}, ${mockMembersNotInList[1].uhUuid}`,
+                            'i'
+                        )
+                    )
+                ).toBeInTheDocument();
+            });
+
+            expect(mockOnOpenManageMembersModal).not.toHaveBeenCalled();
+            expect(mockOnOpenManageMemberModal).not.toHaveBeenCalled();
+        });
+
+        //////////////////////////////////
+        // Valid members in exclude list
+        //////////////////////////////////
+
+        // Singular member input in exclude list
+        it('should accept the valid singular member input in the exclude list', async () => {
+            vi.mocked(getMembersExistInExclude).mockResolvedValue({
+                members: [mockMembersInList[0]] // Mocks the api response of the input, the response of the API request
+            });
+
+            const { user } = await setup(mockMembersInList[0].uhUuid);
+            const removeButton = screen.getByLabelText(/remove-member-button/i);
+
+            await user.click(removeButton);
+
+            // Verify the API was called with the correct input
+            await waitFor(() => {
+                expect(getMembersExistInExclude).toHaveBeenCalledWith('/mock/path', [mockMembersInList[0].uhUuid]);
+            });
+
+            // Verify the component found the member in the returned list and calls modal
+            await waitFor(() => {
+                expect(mockOnOpenManageMemberModal).toHaveBeenCalledWith('removeMembers', [mockMembersInList[0]]);
+            });
+
+            expect(mockOnOpenManageMembersModal).not.toHaveBeenCalled();
+        });
+
+        // Multiple members input in exclude list
+        it('should accept the valid multiple members input in the exclude list', async () => {
+            vi.mocked(getMembersExistInExclude).mockResolvedValue({
+                members: mockMembersInList
+            });
+
+            const { user } = await setup(
+                `${mockMembersInList[0].uhUuid}, ${mockMembersInList[1].uhUuid}`
+            );
+            const removeButton = screen.getByLabelText(/remove-member-button/i);
+
+            await user.click(removeButton);
+
+            await waitFor(() => {
+                expect(getMembersExistInExclude).toHaveBeenCalledWith('/mock/path', [
+                    mockMembersInList[0].uhUuid,
+                    mockMembersInList[1].uhUuid
+                ]);
+            });
+
+            await waitFor(() => {
+                expect(mockOnOpenManageMembersModal).toHaveBeenCalledWith('removeMembers', mockMembersInList);
+            });
+
+            expect(mockOnOpenManageMemberModal).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('ListManagement - Members In/Not In Owners List Validation', () => {
+        const mockOnOpenManageMemberModal = vi.fn();
+        const mockOnOpenManageMembersModal = vi.fn();
+        const mockMembersInList = mockMembersInOwners;
+        const mockMembersNotInList = mockMembersInExclude;
+
+        beforeEach(() => {
+            vi.clearAllMocks();
+        });
+
+        const setup = async (inputValue: string) => {
+            const user = userEvent.setup();
+            render(
+                <ListManagement
+                    list="owners"
+                    groupingPath="/mock/path"
+                    onOpenManageMemberModal={mockOnOpenManageMemberModal}
+                    onOpenManageMembersModal={mockOnOpenManageMembersModal}
+                    checkedMembers={[]}
+                    isPerformingRemoval={false}
+                />
+            );
+
+            const inputBox = screen.getByPlaceholderText(/UH Username or UH Number/i);
+            if (inputValue) {
+                await user.type(inputBox, inputValue);
+            }
+
+            return { user, inputBox };
+        };
+
+        // Singular member input not in owners list, input of 1 member only
+        it('should display member not in owners list error when removing a member not in the owners list', async () => {
+            vi.mocked(getMembersExistInOwners).mockResolvedValue({
+                members: [] // Mocks the api response that none of the inputs of the user are in the owners list
+            });
+
+            const { user } = await setup(mockMembersNotInList[0].uhUuid);
+            const removeButton = screen.getByLabelText(/remove-member-button/i);
+
+            await user.click(removeButton);
+
+            await waitFor(() => {
+                expect(
+                    screen.getByText(
+                        new RegExp(`Member\\(s\\) not in the list: ${mockMembersNotInList[0].uhUuid}`, 'i')
+                    )
+                ).toBeInTheDocument();
+            });
+
+            expect(mockOnOpenManageMembersModal).not.toHaveBeenCalled();
+            expect(mockOnOpenManageMemberModal).not.toHaveBeenCalled();
+        });
+
+        // Multiple members input not in owners list, all inputs are not in the owners list
+        it('should display members not in owners list error when removing multiple members not in the owners list', async () => {
+            vi.mocked(getMembersExistInOwners).mockResolvedValue({
+                members: [] // Mocks the api response that none of the inputs of the user are in the owners list
+            });
+
+            const { user } = await setup(`${mockMembersNotInList[0].uhUuid}, ${mockMembersNotInList[1].uhUuid}`);
+            const removeButton = screen.getByLabelText(/remove-member-button/i);
+
+            await user.click(removeButton);
+
+            await waitFor(() => {
+                expect(
+                    screen.getByText(
+                        new RegExp(
+                            `Member\\(s\\) not in the list:\\s+${mockMembersNotInList[0].uhUuid},\\s+${mockMembersNotInList[1].uhUuid}`,
+                            'i'
+                        )
+                    )
+                ).toBeInTheDocument();
+            });
+
+            expect(mockOnOpenManageMembersModal).not.toHaveBeenCalled();
+            expect(mockOnOpenManageMemberModal).not.toHaveBeenCalled();
+        });
+
+        /////////////////////////////////////////////////////////////////////////
+        // Input contains members in the owners list and not in the owners list
+        /////////////////////////////////////////////////////////////////////////
+
+        it('should display member not in owners list error with an removal input of members in the owners list and one member not in the owners list', async () => {
+            vi.mocked(getMembersExistInOwners).mockResolvedValue({
+                members: [mockMembersInList[0], mockMembersInList[1]] // Mocks the api response that some members of the user input are in the owners list
+            });
+            // example input: 'inList1 inList2 notInList1'
+
+            const { user } = await setup(
+                `${mockMembersNotInList[0].uhUuid}, ${mockMembersInList[0].uhUuid}, ${mockMembersInList[1].uhUuid}`
+            );
+            const removeButton = screen.getByLabelText(/remove-member-button/i);
+
+            await user.click(removeButton);
+
+            await waitFor(() => {
+                expect(
+                    screen.getByText(
+                        new RegExp(`Member\\(s\\) not in the list: ${mockMembersNotInList[0].uhUuid}`, 'i')
+                    )
+                ).toBeInTheDocument();
+            });
+
+            expect(mockOnOpenManageMembersModal).not.toHaveBeenCalled();
+            expect(mockOnOpenManageMemberModal).not.toHaveBeenCalled();
+        });
+
+        it('should display members not-in-owners-list error with a removal input of members in the owners list and members not in the owners list', async () => {
+            vi.mocked(getMembersExistInOwners).mockResolvedValue({
+                members: [mockMembersInList[0], mockMembersInList[1]] // Mocks the api response that some members of the user input are in the owners list
+            });
+            // example input: 'inList1 inList2 notInList1 notInList2'
+
+            const { user } = await setup(
+                `${mockMembersNotInList[0].uhUuid}, ${mockMembersNotInList[1].uhUuid}, ${mockMembersInList[0].uhUuid}, ${mockMembersInList[1].uhUuid}`
+            );
+            const removeButton = screen.getByLabelText(/remove-member-button/i);
+
+            await user.click(removeButton);
+
+            await waitFor(() => {
+                expect(
+                    screen.getByText(
+                        new RegExp(
+                            `Member\\(s\\) not in the list: ${mockMembersNotInList[0].uhUuid}, ${mockMembersNotInList[1].uhUuid}`,
+                            'i'
+                        )
+                    )
+                ).toBeInTheDocument();
+            });
+
+            expect(mockOnOpenManageMembersModal).not.toHaveBeenCalled();
+            expect(mockOnOpenManageMemberModal).not.toHaveBeenCalled();
+        });
+
+        //////////////////////////////////
+        // Valid members in owners list
+        //////////////////////////////////
+
+        // Singular member input in owners list
+        it('should accept the valid singular member input in the owners list', async () => {
+            vi.mocked(getMembersExistInOwners).mockResolvedValue({
+                members: [mockMembersInList[0]] // Mocks the api response of the input, the response of the API request
+            });
+
+            const { user } = await setup(mockMembersInList[0].uhUuid);
+            const removeButton = screen.getByLabelText(/remove-member-button/i);
+
+            await user.click(removeButton);
+
+            // Verify the API was called with the correct input
+            await waitFor(() => {
+                expect(getMembersExistInOwners).toHaveBeenCalledWith('/mock/path', [mockMembersInList[0].uhUuid]);
+            });
+
+            // Verify the component found the member in the returned list and calls modal
+            await waitFor(() => {
+                expect(mockOnOpenManageMemberModal).toHaveBeenCalledWith('removeMembers', [mockMembersInList[0]]);
+            });
+
+            expect(mockOnOpenManageMembersModal).not.toHaveBeenCalled();
+        });
+
+        // Multiple members input in owners list
+        it('should accept the valid multiple members input in the owners list', async () => {
+            vi.mocked(getMembersExistInOwners).mockResolvedValue({
+                members: mockMembersInList
+            });
+
+            const { user } = await setup(
+                `${mockMembersInList[0].uhUuid}, ${mockMembersInList[1].uhUuid}`
+            );
+            const removeButton = screen.getByLabelText(/remove-member-button/i);
+
+            await user.click(removeButton);
+
+            await waitFor(() => {
+                expect(getMembersExistInOwners).toHaveBeenCalledWith('/mock/path', [
+                    mockMembersInList[0].uhUuid,
+                    mockMembersInList[1].uhUuid
+                ]);
+            });
+
+            await waitFor(() => {
+                expect(mockOnOpenManageMembersModal).toHaveBeenCalledWith('removeMembers', mockMembersInList);
             });
 
             expect(mockOnOpenManageMemberModal).not.toHaveBeenCalled();

@@ -263,38 +263,6 @@ describe('GroupingMembersTable', () => {
                     expect(selectAllCheckbox).not.toBeChecked();
                 });
 
-                // failing select all trigger row checkbox check:
-                // it('should select all row checkboxes when select-all gets checked', async () => {
-                //     await user.click(selectAllCheckbox);
-                //
-                //     expect(selectAllCheckbox).toBeChecked();
-                //
-                //     expect(rowCheckboxes[0]).toBeChecked();
-                //
-                //     rowCheckboxes.forEach((checkbox) => {
-                //         expect(checkbox).toBeChecked();
-                //     });
-                // });
-
-                // attempt using await waitFor() for user events and assertions
-                // it('should select all row checkboxes when select-all gets checked using await waitFor()', async () => {
-                //     const selectAllCheckbox = screen.getByRole('checkbox', { name: /select all rows/i });
-                //     await waitFor(async () => {
-                //         user.click(selectAllCheckbox);
-                //     });
-                //
-                //     await waitFor(() => {
-                //         expect(selectAllCheckbox).toBeChecked();
-                //     });
-                //
-                //     const rowCheckboxes = screen.getAllByRole('checkbox', { name: /select row/i });
-                //     await waitFor(() => {
-                //         rowCheckboxes.forEach((checkbox) => {
-                //             expect(checkbox).toBeChecked();
-                //         });
-                //     });
-                // });
-
                 // Passing using fireEvent
                 it('should select all row checkboxes when select-all gets checked (fireEvent)', async () => {
                     // use fireEvent.click instead of user.click
@@ -401,27 +369,6 @@ describe('GroupingMembersTable', () => {
                 expect(trashIcons).toHaveLength(0);
             });
 
-            // it('should open the RemoveMemberModal when the trash icon is clicked', async () => {
-            //     const user = userEvent.setup();
-            //     render(
-            //         <GroupingMembersTable
-            //             groupingGroupMembers={mockGroupingGroupMembers}
-            //             groupingPath={groupingPath}
-            //             group="include"
-            //         />,
-            //         {
-            //             wrapper: createMockProviders()
-            //         }
-            //     );
-            //
-            //     const trashIconButton = screen.getAllByRole('button', { name: /remove member/i })[0];
-            //     await user.click(trashIconButton);
-            //
-            //     const modal = await screen.findByRole('dialog');
-            //     expect(modal).toBeVisible();
-            //     expect(modal).toHaveTextContent('Remove Member');
-            // });
-
             it('should open RemoveMemberModal with correct member when trash icon is clicked', async () => {
                 const user = userEvent.setup();
                 render(
@@ -453,28 +400,6 @@ describe('GroupingMembersTable', () => {
                     expect(within(modal).getAllByText(firstMember.uid)[0]).toBeInTheDocument();
                 });
             });
-
-            // it('should display the correct tooltip content on hover over the trash icon', async () => {
-            //     const user = userEvent.setup();
-            //     render(
-            //         <GroupingMembersTable
-            //             groupingGroupMembers={mockGroupingGroupMembers}
-            //             groupingPath={groupingPath}
-            //             group="include"
-            //         />,
-            //         {
-            //             wrapper: createMockProviders()
-            //         }
-            //     );
-            //
-            //     const trashIconButton = screen.getAllByRole('button', { name: /remove member/i })[0];
-            //
-            //     await user.hover(trashIconButton);
-            //
-            //     const tooltipContent = await screen.findByTestId('trash-tooltip-content', {}, { timeout: 2000 });
-            //     expect(tooltipContent).toBeVisible();
-            //     expect(tooltipContent).toHaveTextContent(message.Tooltip.TRASH_ICON_REMOVAL('include'));
-            // });
         });
     });
 
