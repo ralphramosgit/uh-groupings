@@ -525,8 +525,13 @@ export const getGroupingMembersWhereListed = async (
     return postRequest<GroupingMembers>(endpoint, currentUser.uid, uhIdentifiers);
 };
 
-/*
-  Get if members exist in include
+/**
+ * Check if members exist in the include group of a grouping.
+ *
+ * @param groupingPath - The path of the grouping
+ * @param uhIdentifiers - The list of uhIdentifiers to check
+ *
+ * @returns The promise of grouping members
  */
 export const getMembersExistInInclude = async (
     groupingPath: string,
@@ -537,6 +542,15 @@ export const getMembersExistInInclude = async (
     const endpoint = `${baseUrl}/groupings/${groupingPath}/include-members/in-list`;
     return postRequest<GroupingMembers>(endpoint, currentUser.uid, uhIdentifiers);
 };
+
+/**
+ * Check if members exist in the exclude group of a grouping.
+ *
+ * @param groupingPath - The path of the grouping
+ * @param uhIdentifiers - The list of uhIdentifiers to check
+ *
+ * @returns The promise of grouping members
+ */
 export const getMembersExistInExclude = async (
     groupingPath: string,
     uhIdentifiers: string[]
@@ -546,6 +560,15 @@ export const getMembersExistInExclude = async (
     const endpoint = `${baseUrl}/groupings/${groupingPath}/exclude-members/in-list`;
     return postRequest<GroupingMembers>(endpoint, currentUser.uid, uhIdentifiers);
 };
+
+/**
+ * Check if members exist in the owners group of a grouping.
+ *
+ * @param groupingPath - The path of the grouping
+ * @param uhIdentifiers - The list of uhIdentifiers to check
+ *
+ * @returns The promise of grouping members
+ */
 export const getMembersExistInOwners = async (
     groupingPath: string,
     uhIdentifiers: string[]

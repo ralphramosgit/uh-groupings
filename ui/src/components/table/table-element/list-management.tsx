@@ -101,7 +101,7 @@ const ListManagement = ({
             ).values()
         );
 
-        // Check if there is any not in list
+        // Check if there is any members not in list
         if (notInList.length > 0) {
             setErrorMessage(
                 `${message.ListManagement.ERROR.CONTAINS_MEMBERS_NOT_IN_LIST} ${notInList.map((member) => member.uhUuid).join(', ')}`

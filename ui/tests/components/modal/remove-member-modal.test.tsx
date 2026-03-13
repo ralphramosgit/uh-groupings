@@ -36,7 +36,6 @@ describe('RemoveMemberModal', () => {
     });
 
     describe('Remove Include Member', () => {
-        // const user = userEvent.setup();
         const TestWrapper = () => {
             const [isOpen, setIsOpen] = React.useState(true);
 

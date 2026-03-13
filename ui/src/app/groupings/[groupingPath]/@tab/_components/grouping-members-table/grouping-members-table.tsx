@@ -190,7 +190,6 @@ const GroupingMembersTable = ({
         setMembersToManageCount(validMembers.length);
 
         // Condition which modal to open based on manageType
-
         switch (manageType) {
             case 'removeMembers':
                 setIsRemoveMembersModalOpen(true);
@@ -204,7 +203,7 @@ const GroupingMembersTable = ({
         }
     };
 
-    // dynamic handle successful management of a member(s).
+    // Dynamic handle successful management of a member(s).
     const handleManageMemberSuccess = () => {
         setIsRemoveMemberModalOpen(false);
         setIsRemoveMembersModalOpen(false);
@@ -257,7 +256,6 @@ const GroupingMembersTable = ({
         });
     };
 
-    // Reset selection when groupingPath, group, or globalFilter changes.
     useEffect(() => {
         setRowSelection({});
         setSelectedMembers({});

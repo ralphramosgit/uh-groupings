@@ -6,7 +6,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import * as Actions from '@/lib/actions';
 import userEvent from '@testing-library/user-event';
 import { type OnUrlUpdateFunction } from 'nuqs/adapters/testing';
-import { message } from '@/lib/messages';
 
 vi.mock('next/navigation', () => ({
     useRouter: () => ({
@@ -244,11 +243,9 @@ describe('GroupingMembersTable', () => {
                 });
 
                 it('should unselect a single checkbox when clicked again', async () => {
-                    // First select
                     await user.click(rowCheckboxes[0]);
                     expect(rowCheckboxes[0]).toBeChecked();
 
-                    // Then unselect
                     await user.click(rowCheckboxes[0]);
                     expect(rowCheckboxes[0]).not.toBeChecked();
                 });
@@ -270,7 +267,7 @@ describe('GroupingMembersTable', () => {
 
                     expect(selectAllCheckbox).toBeChecked();
 
-                    // query fresh rowCheckboxes
+                    // Query fresh rowCheckboxes
                     const rowCheckboxes = screen.getAllByRole('checkbox', { name: /select row/i });
                     rowCheckboxes.forEach((checkbox) => {
                         expect(checkbox).toBeChecked();
@@ -278,7 +275,6 @@ describe('GroupingMembersTable', () => {
                 });
 
                 it('should unselect all row checkboxes when select-all gets unchecked (fireEvent)', async () => {
-                    // Use fireEvent.click instead of userEvent
                     fireEvent.click(selectAllCheckbox);
 
                     expect(selectAllCheckbox).toBeChecked();
@@ -289,7 +285,6 @@ describe('GroupingMembersTable', () => {
                     });
 
                     // Now Uncheck select-all
-
                     fireEvent.click(selectAllCheckbox);
 
                     // Query updated row checkboxes
@@ -384,16 +379,15 @@ describe('GroupingMembersTable', () => {
                 const trashIconButton = screen.getAllByRole('button', { name: /remove member/i })[0];
                 await fireEvent.click(trashIconButton);
 
-                // expect modal to show
+                // Expect modal to show
                 await waitFor(() => {
-                    // expect(screen.getByTestId('remove-member-modal')).toBeInTheDocument();
                     const modal = screen.getByTestId('remove-member-modal');
                     expect(modal).toBeInTheDocument();
 
                     //expect title:
                     expect(within(modal).getByText('Remove Member')).toBeInTheDocument();
 
-                    // expect matching names of member to remove
+                    // Expect matching names of member to remove
                     const firstMember = mockGroupingGroupMembers.members[0];
                     expect(within(modal).getAllByText(firstMember.name)[0]).toBeInTheDocument();
                     expect(within(modal).getAllByText(firstMember.uhUuid)[0]).toBeInTheDocument();
@@ -419,7 +413,6 @@ describe('GroupingMembersTable', () => {
             const trashIconButton = screen.getAllByRole('button', { name: /remove member/i })[0];
             await fireEvent.click(trashIconButton);
 
-            // expect modal to show
             await waitFor(() => {
                 const modal = screen.getByTestId('remove-member-modal');
                 expect(modal).toBeInTheDocument();
@@ -561,10 +554,6 @@ describe('GroupingMembersTable', () => {
                 }
             );
 
-            // expect(screen.getByRole('textbox')).toHaveValue('test');
-            //
-            // await user.type(screen.getByRole('textbox'), 's');
-
             expect(screen.getByPlaceholderText('Filter Members...')).toHaveValue('test');
 
             await user.type(screen.getByPlaceholderText('Filter Members...'), 's');
@@ -577,8 +566,6 @@ describe('GroupingMembersTable', () => {
             expect(event.queryString).toBe('?search=tests');
             expect(event.searchParams.get('search')).toBe('tests');
             expect(event.options.history).toBe('replace');
-
-            // await user.clear(screen.getByRole('textbox'));
 
             await user.clear(screen.getByPlaceholderText('Filter Members...'));
 
@@ -593,10 +580,9 @@ describe('GroupingMembersTable', () => {
         });
     });
 
-    //     list management
     describe('List Management', () => {
-        //   should display input box, add button and remove button in include, exclude, and owners tab
-        //     should display import file button in include and exclude tab
+        //   Should display input box, add button and remove button in include, exclude, and owners tab
+        //   Should display import file button in include and exclude tab
 
         it.each(['include', 'exclude', 'owners'] as const)(
             'should display ListManagement inputbox, add, and remove buttons in the %s tab',
