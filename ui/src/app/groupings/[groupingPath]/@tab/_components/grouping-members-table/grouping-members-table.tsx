@@ -140,6 +140,7 @@ const GroupingMembersTable = ({
     const router = useRouter();
     const [rowSelection, setRowSelection] = useState({});
     const [isPerformingRemoval, setIsPerformingRemoval] = useState(false);
+    const [isInputFocused, setIsInputFocused] = useState(false);
 
     const handleOpenManageMemberModal = (manageType: string, membersInList: MemberResult[]) => {
         if (membersInList.length === 1) {
@@ -267,7 +268,8 @@ const GroupingMembersTable = ({
         columns: GroupingMembersTableColumns(
             handleOpenManageMemberModal,
             group,
-            !group ? isWhereListedPending : isBasisPending
+            !group ? isWhereListedPending : isBasisPending,
+            isInputFocused
         ),
         data: !group ? groupingMembersWhereListed : groupingMembersIsBasis,
         rowCount: globalFilter ? size : rowCount,
@@ -424,6 +426,7 @@ const GroupingMembersTable = ({
                     onOpenManageMembersModal={handleOpenManageMembersModal}
                     checkedMembers={checkedMembers}
                     isPerformingRemoval={isPerformingRemoval}
+                    onInputFocusChange={setIsInputFocused}
                 />
             ) : null}
             {memberToManage && (
