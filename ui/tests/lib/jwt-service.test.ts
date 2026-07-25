@@ -37,11 +37,11 @@ describe('jwt-service', () => {
             expect(decoded.sub).toBe(testUser.uid);
         });
 
-        it('should include the user roles in the token payload prefixed with ROLE_', async () => {
+        it('should include the user roles in the token payload', async () => {
             const token = await generateJWT();
             const decoded = jwt.decode(token) as any;
 
-            expect(decoded.roles).toEqual(testUser.roles.map((role) => `ROLE_${role}`));
+            expect(decoded.roles).toEqual(testUser.roles);
         });
 
         it('should set expiration time based on JWT_EXPIRATION_SECONDS', async () => {
@@ -64,7 +64,7 @@ describe('jwt-service', () => {
 
         it('should generate different tokens when called multiple times', async () => {
             const token1 = await generateJWT();
-            await new Promise(resolve => setTimeout(resolve, 1100));
+            await new Promise((resolve) => setTimeout(resolve, 1100));
             const token2 = await generateJWT();
 
             expect(token1).not.toBe(token2);
@@ -96,7 +96,9 @@ describe('jwt-service', () => {
             vi.resetModules();
             const jwtService = await import('@/lib/jwt-service');
 
-            await expect(jwtService.generateJWT()).rejects.toThrow('JWT_EXPIRATION_SECONDS environment variable is not set');
+            await expect(jwtService.generateJWT()).rejects.toThrow(
+                'JWT_EXPIRATION_SECONDS environment variable is not set'
+            );
 
             process.env.JWT_EXPIRATION_SECONDS = originalExpiration;
         });
