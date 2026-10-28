@@ -18,6 +18,7 @@ export type MemberResult = {
     name: string;
     firstName?: string;
     lastName?: string;
+    orphan?: boolean;
 };
 
 export type GroupingPath = {
