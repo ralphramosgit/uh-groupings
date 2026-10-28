@@ -8,7 +8,7 @@ export const message = {
         OPT_OUT_LABEL: 'Allow people to remove themselves from this group',
         MODAL_TITLE: 'Preferences Information',
         MODAL_CLOSE: 'OK',
-        MODAL_CANCEL: 'Cancel',
+        MODAL_CANCEL: 'Cancel'
     },
 
     Tooltip: {
@@ -19,6 +19,8 @@ export const message = {
         TRASH_ICON_REMOVAL: (group: string) =>
             `Remove member from the ${group.charAt(0).toUpperCase() + group.slice(1)} list`,
         Trashcan_Admin: 'Remove this admin',
+        ORPHAN: 'Missing member name. Click more info for guidance on the IAM help page, or contact Help Desk at help@hawaii.edu.',
+        ORPHAN_HELP_ARIA: 'Click more info about missing member names'
     },
 
     SyncDestinations: {
@@ -62,7 +64,7 @@ export const message = {
         ),
         FEEDBACK_LINK: '/feedback',
         FEEDBACK_TEXT2: 'Feedback',
-        CLOSE_TEXT: 'OK',
+        CLOSE_TEXT: 'OK'
     },
 
     RemoveMemberModals: {
@@ -90,10 +92,8 @@ export const message = {
         SUCCESS: {
             ADD_TITLE: 'Add Member',
             REMOVE_TITLE: 'Remove Member',
-            ADD_BODY: (name: string) =>
-                `${name} has been successfully added to the admins list.`,
-            REMOVE_BODY: (name: string) =>
-                `${name} has been successfully removed from the admins list.`
+            ADD_BODY: (name: string) => `${name} has been successfully added to the admins list.`,
+            REMOVE_BODY: (name: string) => `${name} has been successfully removed from the admins list.`
         }
-    },
+    }
 };

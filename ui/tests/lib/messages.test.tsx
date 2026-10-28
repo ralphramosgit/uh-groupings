@@ -27,30 +27,27 @@ describe('message constants', () => {
             const result = message.Tooltip.TRASH_ICON_REMOVAL('admins');
             expect(result).toBe('Remove member from the Admins list');
         });
+        it('should contain the orphan member tooltip and help link aria label', () => {
+            expect(message.Tooltip.ORPHAN).toMatch(/missing member name/i);
+            expect(message.Tooltip.ORPHAN).toMatch(/help@hawaii\.edu/);
+            expect(message.Tooltip.ORPHAN_HELP_ARIA).toBe('Click more info about missing member names');
+        });
     });
 
     describe('SyncDestinations', () => {
         it('should return correct modal body for enable', () => {
             const result = message.SyncDestinations.MODAL_BODY(false, 'LDAP');
-            expect(result).toBe(
-                'Are you sure you want to enable the synchronization destination: LDAP?'
-            );
+            expect(result).toBe('Are you sure you want to enable the synchronization destination: LDAP?');
         });
 
         it('should return correct modal body for disable', () => {
             const result = message.SyncDestinations.MODAL_BODY(true, 'Google');
-            expect(result).toBe(
-                'Are you sure you want to disable the synchronization destination: Google?'
-            );
+            expect(result).toBe('Are you sure you want to disable the synchronization destination: Google?');
         });
 
         it('should contain static modal strings', () => {
-            expect(message.SyncDestinations.MODAL_TITLE).toBe(
-                'Synchronization Destination Confirmation'
-            );
-            expect(message.SyncDestinations.MODAL_WARNING).toMatch(
-                /operationally very expensive/i
-            );
+            expect(message.SyncDestinations.MODAL_TITLE).toBe('Synchronization Destination Confirmation');
+            expect(message.SyncDestinations.MODAL_WARNING).toMatch(/operationally very expensive/i);
         });
     });
 
@@ -67,16 +64,12 @@ describe('message constants', () => {
 
         it('should return correct body text for both lists', () => {
             const result = message.Actions.MODAL_BODY(true, true, 'Test Group');
-            expect(result).toMatch(
-                /Exclude and Include lists.*Test Group grouping/
-            );
+            expect(result).toMatch(/Exclude and Include lists.*Test Group grouping/);
         });
 
         it('should contain correct action titles and labels', () => {
             expect(message.Actions.TITLE).toBe('Grouping Actions');
-            expect(message.Actions.MODAL_SUCCESS_TITLE).toBe(
-                'Grouping Reset Completion'
-            );
+            expect(message.Actions.MODAL_SUCCESS_TITLE).toBe('Grouping Reset Completion');
             expect(message.Actions.MODAL_CONFIRM).toBe('Yes');
         });
     });
@@ -97,41 +90,25 @@ describe('message constants', () => {
 
     describe('RemoveMemberModals', () => {
         it('should contain correct alert and tooltip text', () => {
-            expect(message.RemoveMemberModals.ALERT_DESCRIPTION).toMatch(
-                /Membership changes made/i
-            );
+            expect(message.RemoveMemberModals.ALERT_DESCRIPTION).toMatch(/Membership changes made/i);
 
-            expect(
-                message.RemoveMemberModals.TOOLTIP.NO_UID_SINGLE
-            ).toMatch(/UH username/i);
+            expect(message.RemoveMemberModals.TOOLTIP.NO_UID_SINGLE).toMatch(/UH username/i);
 
-            expect(
-                message.RemoveMemberModals.TOOLTIP.NO_UID_MULTIPLE
-            ).toMatch(/UH username/i);
+            expect(message.RemoveMemberModals.TOOLTIP.NO_UID_MULTIPLE).toMatch(/UH username/i);
         });
     });
 
     describe('ListManagement', () => {
         it('should contain correct error messages', () => {
-            expect(message.ListManagement.ERROR.EMPTY_INPUT).toMatch(
-                /enter a UH member/i
-            );
+            expect(message.ListManagement.ERROR.EMPTY_INPUT).toMatch(/enter a UH member/i);
 
-            expect(
-                message.ListManagement.ERROR.INVALID_TEXT_INPUTS
-            ).toMatch(/alphanumeric/i);
+            expect(message.ListManagement.ERROR.INVALID_TEXT_INPUTS).toMatch(/alphanumeric/i);
 
-            expect(
-                message.ListManagement.ERROR.CONTAINS_MEMBERS_NOT_IN_LIST
-            ).toMatch(/Member/);
+            expect(message.ListManagement.ERROR.CONTAINS_MEMBERS_NOT_IN_LIST).toMatch(/Member/);
 
-            expect(
-                message.ListManagement.ERROR.DUPLICATE_MEMBERS_INPUT
-            ).toMatch(/Duplicate/);
+            expect(message.ListManagement.ERROR.DUPLICATE_MEMBERS_INPUT).toMatch(/Duplicate/);
 
-            expect(
-                message.ListManagement.ERROR.NO_VALID_MEMBERS_TO_REMOVE
-            ).toMatch(/do not exist/i);
+            expect(message.ListManagement.ERROR.NO_VALID_MEMBERS_TO_REMOVE).toMatch(/do not exist/i);
         });
     });
 
@@ -142,12 +119,8 @@ describe('message constants', () => {
 
             expect(add).toMatch(/Alice/);
             expect(remove).toMatch(/Bob/);
-            expect(message.AdminTable.SUCCESS.ADD_TITLE).toBe(
-                'Add Member'
-            );
-            expect(message.AdminTable.SUCCESS.REMOVE_TITLE).toBe(
-                'Remove Member'
-            );
+            expect(message.AdminTable.SUCCESS.ADD_TITLE).toBe('Add Member');
+            expect(message.AdminTable.SUCCESS.REMOVE_TITLE).toBe('Remove Member');
         });
     });
 });
