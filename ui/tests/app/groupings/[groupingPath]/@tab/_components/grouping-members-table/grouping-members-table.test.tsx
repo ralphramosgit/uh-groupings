@@ -669,6 +669,75 @@ describe('GroupingMembersTable', () => {
         });
     });
 
+    describe('Orphan members', () => {
+        // The API fills an orphan's name with an "entity not found" placeholder.
+        const orphanMember = {
+            resultCode: 'SUCCESS',
+            uid: '',
+            uhUuid: '25528222',
+            name: '25528222 entity not found',
+            firstName: '',
+            lastName: '',
+            orphan: true
+        };
+        // IAM test user testiwta.
+        const namedMember = {
+            resultCode: 'SUCCESS',
+            uid: 'testiwta',
+            uhUuid: '99997010',
+            name: 'Testf-iwt-a TestIAM-staff',
+            firstName: 'Testf-iwt-a',
+            lastName: 'TestIAM-staff',
+            orphan: false
+        };
+        const membersWithOrphan = {
+            ...mockGroupingGroupMembers,
+            size: 2,
+            members: [orphanMember, namedMember]
+        };
+
+        it('should keep the member rows after getGroupingMembersIsBasis resolves', async () => {
+            // The real response sends orphan as false. A different name proves the rows were not replaced.
+            vi.spyOn(Actions, 'getGroupingMembersIsBasis').mockResolvedValue({
+                members: [
+                    { ...orphanMember, orphan: false, name: 'name from is-basis', whereListed: 'Basis' },
+                    { ...namedMember, whereListed: '' }
+                ]
+            });
+
+            render(
+                <GroupingMembersTable
+                    groupingGroupMembers={membersWithOrphan}
+                    groupingPath={groupingPath}
+                    group="include"
+                />,
+                { wrapper: createMockProviders() }
+            );
+
+            expect(await screen.findByText('Yes')).toBeInTheDocument();
+            expect(screen.getByText('25528222 entity not found')).toBeInTheDocument();
+            expect(screen.queryByText('name from is-basis')).not.toBeInTheDocument();
+        });
+
+        it('should keep the member rows after getGroupingMembersWhereListed resolves', async () => {
+            vi.spyOn(Actions, 'getGroupingMembersWhereListed').mockResolvedValue({
+                members: [
+                    { ...orphanMember, orphan: false, name: 'name from where-listed', whereListed: 'Basis & Include' },
+                    { ...namedMember, whereListed: 'Include' }
+                ]
+            });
+
+            render(<GroupingMembersTable groupingGroupMembers={membersWithOrphan} groupingPath={groupingPath} />, {
+                wrapper: createMockProviders()
+            });
+
+            expect(await screen.findByText('Basis & Include')).toBeInTheDocument();
+            expect(screen.getByText('Include')).toBeInTheDocument();
+            expect(screen.getByText('25528222 entity not found')).toBeInTheDocument();
+            expect(screen.queryByText('name from where-listed')).not.toBeInTheDocument();
+        });
+    });
+
     describe('RemoveMemberModal', () => {
         it('should close the remove member modal when cancel action is triggered', async () => {
             //open remove member modal through click of trash icon

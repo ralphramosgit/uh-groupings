@@ -123,4 +123,78 @@ describe('GroupingMembersTab', () => {
         );
         expect(Actions.getGroupingMembers).toHaveBeenCalledWith(groupPath, searchParams);
     });
+
+    describe('Orphan members', () => {
+        // The API fills an orphan's name with an "entity not found" placeholder.
+        const orphanMember = {
+            resultCode: 'SUCCESS',
+            uid: '',
+            uhUuid: '25528222',
+            name: '25528222 entity not found',
+            firstName: '',
+            lastName: '',
+            orphan: true
+        };
+        // IAM test user testiwta.
+        const namedMember = {
+            resultCode: 'SUCCESS',
+            uid: 'testiwta',
+            uhUuid: '99997010',
+            name: 'Testf-iwt-a TestIAM-staff',
+            firstName: 'Testf-iwt-a',
+            lastName: 'TestIAM-staff',
+            orphan: false
+        };
+        // IAM test user testiwtb, with the name removed to simulate a transient data glitch.
+        const namelessMember = {
+            resultCode: 'SUCCESS',
+            uid: 'testiwtb',
+            uhUuid: '99997027',
+            name: '',
+            firstName: '',
+            lastName: '',
+            orphan: false
+        };
+        const membersWithOrphan = {
+            ...mockGroupingMembers,
+            members: [orphanMember, namedMember, namelessMember]
+        };
+
+        it('should keep orphan members and drop nameless non-orphan members', async () => {
+            vi.spyOn(Actions, 'getGroupingMembers').mockResolvedValue(membersWithOrphan);
+            render(
+                await GroupingMembersTab({
+                    params: { groupingPath },
+                    searchParams: { page: '1', sortBy: 'name', isAscending: 'true' },
+                    group
+                }),
+                { wrapper: createMockProviders() }
+            );
+
+            expect(screen.getByText('25528222')).toBeInTheDocument();
+            expect(screen.getByText('99997010')).toBeInTheDocument();
+            expect(screen.queryByText('99997027')).not.toBeInTheDocument();
+        });
+
+        it('should keep orphan members on any page and sort order', async () => {
+            vi.spyOn(Actions, 'getGroupingMembers').mockResolvedValue(membersWithOrphan);
+            render(
+                await GroupingMembersTab({
+                    params: { groupingPath },
+                    searchParams: { page: '2', sortBy: 'uhUuid', isAscending: 'false' },
+                    group
+                }),
+                { wrapper: createMockProviders() }
+            );
+
+            expect(Actions.getGroupingMembers).toHaveBeenCalledWith(groupPath, {
+                page: 2,
+                size: pageSize,
+                sortBy: SortBy.UH_UUID,
+                isAscending: false,
+                searchString: undefined
+            });
+            expect(screen.getByText('25528222')).toBeInTheDocument();
+        });
+    });
 });

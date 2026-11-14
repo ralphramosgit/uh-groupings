@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { isDisplayableMember, isOrphanMember, memberLabelForAria, ORPHAN_HELP_URL } from '@/lib/member-utils';
+import {
+    isDisplayableMember,
+    isOrphanMember,
+    memberLabelForAria,
+    mergeWhereListed,
+    ORPHAN_HELP_URL
+} from '@/lib/member-utils';
 
 describe('member-utils', () => {
     const orphan = {
@@ -61,6 +67,46 @@ describe('member-utils', () => {
 
         it('should keep orphans and drop nameless members when filtering a list', () => {
             expect([orphan, named, nameless].filter(isDisplayableMember)).toEqual([orphan, named]);
+        });
+    });
+
+    describe('mergeWhereListed', () => {
+        // The members endpoint also sends uid. An orphan's uid is empty.
+        const members = [
+            { ...orphan, uid: '' },
+            { ...named, uid: 'testiwta' }
+        ];
+
+        it('should keep the orphan flag when the response sends orphan as false', () => {
+            const response = members.map((member) => ({ ...member, orphan: false, whereListed: 'Basis' }));
+            const [mergedOrphan] = mergeWhereListed(members, response);
+
+            expect(mergedOrphan.orphan).toBe(true);
+            expect(mergedOrphan.whereListed).toBe('Basis');
+        });
+
+        it('should match whereListed by uhUuid, not by position', () => {
+            const response = [
+                { ...members[1], whereListed: 'Include' },
+                { ...members[0], orphan: false, whereListed: 'Basis & Include' }
+            ];
+            const whereListed = mergeWhereListed(members, response).map((member) => member.whereListed);
+
+            expect(whereListed).toEqual(['Basis & Include', 'Include']);
+        });
+
+        it('should leave whereListed undefined while the response is loading', () => {
+            const merged = mergeWhereListed(members, undefined);
+
+            expect(merged.map((member) => member.whereListed)).toEqual([undefined, undefined]);
+            expect(merged.map((member) => member.uhUuid)).toEqual(['25528222', '99997010']);
+        });
+
+        it('should not change the original members', () => {
+            const merged = mergeWhereListed(members, []);
+
+            expect(merged[0]).not.toBe(members[0]);
+            expect(members[0]).not.toHaveProperty('whereListed');
         });
     });
 });

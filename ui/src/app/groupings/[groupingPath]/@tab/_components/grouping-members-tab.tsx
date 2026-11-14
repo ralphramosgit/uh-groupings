@@ -2,6 +2,7 @@ import GroupingMembersTable, {
     GroupingMembersTableSearchParams
 } from './grouping-members-table/grouping-members-table';
 import SortBy from '@/app/groupings/[groupingPath]/@tab/_components/grouping-members-table/table-element/sort-by';
+import { isDisplayableMember } from '@/lib/member-utils';
 import { getGroupingMembers } from '@/lib/actions';
 import { Group } from '@/lib/types';
 import { parseAsBoolean, parseAsInteger, parseAsStringEnum } from 'nuqs/server';
@@ -43,7 +44,7 @@ const GroupingMembersTab = async ({
         resultCode: groupingGroupMembersResult.resultCode,
         groupPath: groupingGroupMembersResult.groupPath,
         size: groupingGroupMembersResult.size,
-        members: groupingGroupMembersResult.members.map((member) => ({ ...member }))
+        members: groupingGroupMembersResult.members.filter(isDisplayableMember).map((member) => ({ ...member }))
     };
 
     return (

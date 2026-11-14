@@ -220,6 +220,46 @@ describe('AdminTable', () => {
         );
     }, 10000);
 
+    it('should keep orphan admins when sorting and filtering', async () => {
+        const members = [
+            { resultCode: 'SUCCESS', uid: 'uid-1', uhUuid: '111', name: 'Alice A', firstName: 'Alice', lastName: 'A' },
+            {
+                resultCode: 'SUCCESS',
+                uid: '',
+                uhUuid: '25528222',
+                name: '25528222 entity not found',
+                firstName: '',
+                lastName: '',
+                orphan: true
+            },
+            { resultCode: 'SUCCESS', uid: 'uid-2', uhUuid: '222', name: 'Bob B', firstName: 'Bob', lastName: 'B' }
+        ];
+
+        render(
+            <AdminTable
+                groupingGroupMembers={{
+                    resultCode: 'SUCCESS',
+                    size: members.length,
+                    groupPath: 'example:groupingAdmins',
+                    members
+                }}
+            />
+        );
+        expect(await screen.findByText('25528222')).toBeInTheDocument();
+
+        // Sort by name descending.
+        fireEvent.click(screen.getByText('Admin Name'));
+        await waitFor(() => {
+            expect(screen.getByTestId('chevron-up-icon')).toBeInTheDocument();
+        });
+        expect(screen.getByText('25528222')).toBeInTheDocument();
+
+        // Filter by the orphan's UH number.
+        fireEvent.change(screen.getByPlaceholderText('Filter Admins...'), { target: { value: '25528222' } });
+        expect(screen.getByText('25528222')).toBeInTheDocument();
+        expect(screen.queryByText('Alice A')).not.toBeInTheDocument();
+    });
+
     it('should paginate correctly', async () => {
         render(<AdminTable groupingGroupMembers={mockData} />);
 

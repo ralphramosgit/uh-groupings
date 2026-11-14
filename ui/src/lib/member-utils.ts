@@ -1,4 +1,4 @@
-import { MemberResult } from './types';
+import { GroupingMember, MemberResult } from './types';
 
 type MemberLike = Pick<MemberResult, 'name' | 'uhUuid' | 'orphan'>;
 
@@ -41,3 +41,18 @@ export const memberLabelForAria = (member?: MemberLike | null): string => {
  * @returns True if the member should be displayed
  */
 export const isDisplayableMember = (member: MemberLike): boolean => isOrphanMember(member) || !!member.name?.trim();
+
+/**
+ * 
+ * @param members - The members of the current page
+ * @param whereListedMembers - The is-basis or where-listed response, undefined while it is loading
+ *
+ * @returns The members with whereListed added
+ */
+export const mergeWhereListed = <T extends MemberResult>(
+    members: T[],
+    whereListedMembers?: GroupingMember[]
+): (T & { whereListed?: string })[] => {
+    const whereListedByUhUuid = new Map(whereListedMembers?.map((member) => [member.uhUuid, member.whereListed]));
+    return members.map((member) => ({ ...member, whereListed: whereListedByUhUuid.get(member.uhUuid) }));
+};

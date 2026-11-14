@@ -18,11 +18,12 @@ import PaginationBar from '@/components/table/table-element/pagination-bar';
 import RemoveMemberModal from '@/components/modal/remove-member-modal';
 import RemoveMembersModal from '@/components/modal/remove-members-modal';
 import SuccessModal from '@/components/modal/success-modal';
-import { useEffect, useState, useTransition } from 'react';
+import { useEffect, useMemo, useState, useTransition } from 'react';
 import GlobalFilter from '@/components/table/table-element/global-filter';
 import { useQuery } from '@tanstack/react-query';
 import { Spinner } from '@/components/ui/spinner';
 import { getGroupingMembersIsBasis, getGroupingMembersWhereListed, getNumberOfGroupingMembers } from '@/lib/actions';
+import { mergeWhereListed } from '@/lib/member-utils';
 import {
     parseAsBoolean,
     parseAsInteger,
@@ -115,7 +116,7 @@ const GroupingMembersTable = ({
     const uhUuids = members.map((member) => member.uhUuid);
 
     // Fetch isBasis data.
-    const { data: groupingMembersIsBasis = members, isPending: isBasisPending } = useQuery({
+    const { data: groupingMembersIsBasis, isPending: isBasisPending } = useQuery({
         staleTime: Infinity, // The basis group members rarely change.
         enabled: members.length > 0 && !['basis', 'owners', undefined].includes(group),
         queryKey: [`${groupingPath}:basis`, uhUuids],
@@ -123,11 +124,17 @@ const GroupingMembersTable = ({
     });
 
     // Fetch whereListed data.
-    const { data: groupingMembersWhereListed = members, isPending: isWhereListedPending } = useQuery({
+    const { data: groupingMembersWhereListed, isPending: isWhereListedPending } = useQuery({
         enabled: members.length > 0 && !group,
         queryKey: [groupingPath, uhUuids],
         queryFn: () => getGroupingMembersWhereListed(groupingPath, uhUuids).then((res) => res.members)
     });
+
+    // Add whereListed to the members instead of replacing them, so the orphan flag is kept.
+    const data = useMemo(
+        () => mergeWhereListed(members, !group ? groupingMembersWhereListed : groupingMembersIsBasis),
+        [members, group, groupingMembersWhereListed, groupingMembersIsBasis]
+    );
 
     // List Management (Member Removal).
     const [isRemoveMemberModalOpen, setIsRemoveMemberModalOpen] = useState(false);
@@ -280,7 +287,7 @@ const GroupingMembersTable = ({
             !group ? isWhereListedPending : isBasisPending,
             isInputFocused
         ),
-        data: !group ? groupingMembersWhereListed : groupingMembersIsBasis,
+        data,
         rowCount: globalFilter ? size : rowCount,
         getCoreRowModel: getCoreRowModel(),
         onPaginationChange,
