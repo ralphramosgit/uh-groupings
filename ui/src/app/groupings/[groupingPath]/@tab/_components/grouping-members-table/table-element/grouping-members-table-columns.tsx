@@ -9,6 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTools } from '@fortawesome/free-solid-svg-icons';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { message } from '@/lib/messages';
+import { isOrphanMember } from '@/lib/member-utils';
 
 const GroupingMembersTableColumns = (
     onOpenManageMemberModal: (manageType: string, membersInList: GroupingGroupMembers['members']) => void = () => {},
@@ -78,6 +79,7 @@ const GroupingMembersTableColumns = (
                             uid={row.getValue('uid')}
                             // uhUuid={row.getValue('uhUuid')}
                             uhUuid={group !== 'owners' ? row.getValue('uhUuid') : ''}
+                            orphan={isOrphanMember(row.original)}
                         />
                     </div>
                     {['include', 'exclude', 'owners'].includes(group || '') && (

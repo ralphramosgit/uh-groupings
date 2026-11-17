@@ -5,6 +5,8 @@ import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
 import { faTrashAlt } from '@fortawesome/free-regular-svg-icons';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { message } from '@/lib/messages';
+import { isOrphanMember } from '@/lib/member-utils';
+import OrphanMemberName from '@/components/table/table-element/orphan-member-name';
 
 const AdminTableColumns = (onOpenRemove: (member: GroupingGroupMember) => void): ColumnDef<GroupingGroupMember>[] => [
     {
@@ -13,7 +15,7 @@ const AdminTableColumns = (onOpenRemove: (member: GroupingGroupMember) => void):
         sortDescFirst: true,
         cell: ({ row }) => (
             <div className="pl-2 leading-relaxed">
-                {row.original.name}
+                {isOrphanMember(row.original) ? <OrphanMemberName /> : row.original.name}
             </div>
         ),
     },

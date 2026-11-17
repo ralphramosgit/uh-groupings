@@ -715,7 +715,9 @@ describe('GroupingMembersTable', () => {
             );
 
             expect(await screen.findByText('Yes')).toBeInTheDocument();
-            expect(screen.getByText('25528222 entity not found')).toBeInTheDocument();
+            expect(
+                screen.getByRole('link', { name: 'Click more info about missing member names' })
+            ).toBeInTheDocument();
             expect(screen.queryByText('name from is-basis')).not.toBeInTheDocument();
         });
 
@@ -733,7 +735,9 @@ describe('GroupingMembersTable', () => {
 
             expect(await screen.findByText('Basis & Include')).toBeInTheDocument();
             expect(screen.getByText('Include')).toBeInTheDocument();
-            expect(screen.getByText('25528222 entity not found')).toBeInTheDocument();
+            expect(
+                screen.getByRole('link', { name: 'Click more info about missing member names' })
+            ).toBeInTheDocument();
             expect(screen.queryByText('name from where-listed')).not.toBeInTheDocument();
         });
     });

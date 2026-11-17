@@ -1,8 +1,24 @@
 import { faSchool } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
+import OrphanMemberName from '@/components/table/table-element/orphan-member-name';
 
-const GroupingMemberNameCell = ({ name, uid, uhUuid }: { name: string; uid: string; uhUuid: string }) => {
+const GroupingMemberNameCell = ({
+    name,
+    uid,
+    uhUuid,
+    orphan = false
+}: {
+    name: string;
+    uid: string;
+    uhUuid: string;
+    orphan?: boolean;
+}) => {
+    // An orphan's name is Grouper's "entity not found" placeholder, so show N/A and a help link instead.
+    if (orphan) {
+        return <OrphanMemberName />;
+    }
+
     return (
         <>
             {name}{' '}

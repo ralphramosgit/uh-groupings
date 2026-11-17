@@ -28,6 +28,10 @@ vi.mock('@/lib/messages', () => ({
                 NO_UID_MULTIPLE: 'This person does not have a UH username.',
             },
         },
+        Tooltip: {
+            ORPHAN: 'Missing member name.',
+            ORPHAN_HELP_ARIA: 'Click more info about missing member names',
+        },
     },
 }));
 
@@ -169,6 +173,28 @@ describe('AdminTableColumns', () => {
 
         expect(screen.getByText('test-uid')).toBeInTheDocument();
         expect(screen.queryByText('N/A')).not.toBeInTheDocument();
+    });
+
+    it('displays N/A and the help link instead of the name for an orphan admin', () => {
+        const columns = AdminTableColumns(vi.fn());
+        const nameColumn = columns.find(col => col.header === 'Admin Name');
+        if (!nameColumn || !nameColumn.cell) throw new Error('Admin Name column not found');
+
+        const member: GroupingGroupMember = {
+            name: '25528222 entity not found',
+            uhUuid: '25528222',
+            uid: '',
+            firstName: '',
+            lastName: '',
+            resultCode: 'SUCCESS',
+            orphan: true,
+        };
+
+        render(<>{flexRender(nameColumn.cell, { row: { original: member } } as never)}</>);
+
+        expect(screen.getByText('N/A')).toBeInTheDocument();
+        expect(screen.getByRole('link', { name: 'Click more info about missing member names' })).toBeInTheDocument();
+        expect(screen.queryByText('25528222 entity not found')).not.toBeInTheDocument();
     });
 
     it('renders trash icon button with correct aria-label', () => {

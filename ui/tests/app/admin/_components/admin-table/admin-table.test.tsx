@@ -101,6 +101,10 @@ vi.mock('@/lib/messages', () => ({
                 NO_UID_MULTIPLE: 'This person does not have a UH username.',
             },
         },
+        Tooltip: {
+            ORPHAN: 'Missing member name.',
+            ORPHAN_HELP_ARIA: 'Click more info about missing member names',
+        },
     },
 }));
 
@@ -246,6 +250,7 @@ describe('AdminTable', () => {
             />
         );
         expect(await screen.findByText('25528222')).toBeInTheDocument();
+        expect(screen.getByRole('link', { name: 'Click more info about missing member names' })).toBeInTheDocument();
 
         // Sort by name descending.
         fireEvent.click(screen.getByText('Admin Name'));

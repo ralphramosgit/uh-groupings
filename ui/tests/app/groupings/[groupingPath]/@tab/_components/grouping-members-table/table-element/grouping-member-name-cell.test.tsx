@@ -27,4 +27,23 @@ describe('GroupingMemberNameCell', () => {
         rerender(<GroupingMemberNameCell name={name} uid="testiwta" uhUuid="" />);
         expect(screen.queryByLabelText('Departmental Account Icon')).not.toBeInTheDocument();
     });
+
+    describe('Orphan members', () => {
+        const orphanName = '25528222 entity not found';
+
+        it('should render N/A and the help link instead of the name', () => {
+            render(<GroupingMemberNameCell name={orphanName} uid="" uhUuid="25528222" orphan />);
+
+            expect(screen.getByText('N/A')).toBeInTheDocument();
+            expect(
+                screen.getByRole('link', { name: 'Click more info about missing member names' })
+            ).toBeInTheDocument();
+            expect(screen.queryByText(orphanName)).not.toBeInTheDocument();
+        });
+
+        it('should not render the departmental account icon', () => {
+            render(<GroupingMemberNameCell name={orphanName} uid="25528222" uhUuid="25528222" orphan />);
+            expect(screen.queryByLabelText('Departmental Account Icon')).not.toBeInTheDocument();
+        });
+    });
 });
