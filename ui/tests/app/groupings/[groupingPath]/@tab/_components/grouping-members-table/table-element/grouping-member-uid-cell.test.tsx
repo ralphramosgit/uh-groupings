@@ -14,4 +14,9 @@ describe('GroupingMemberUidCell', () => {
         render(<GroupingMemberUidCell uid="" />);
         expect(screen.getByText('N/A')).toBeInTheDocument();
     });
+
+    it('should give the N/A tooltip button an accessible name', () => {
+        render(<GroupingMemberUidCell uid="" />);
+        expect(screen.getByRole('button', { name: 'UH Username not available' })).toBeInTheDocument();
+    });
 });

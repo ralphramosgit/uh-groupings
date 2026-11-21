@@ -221,4 +221,25 @@ describe('AdminTableColumns', () => {
         const button = screen.getByLabelText(/Remove Test Admin as admin/);
         expect(button).toBeInTheDocument();
     });
+
+    it('uses the UH number in the trash icon aria-label for an orphan admin', () => {
+        const columns = AdminTableColumns(vi.fn());
+        const removeColumn = columns.find(col => col.header === 'Remove');
+        if (!removeColumn || !removeColumn.cell) throw new Error('Remove column not found');
+
+        const member: GroupingGroupMember = {
+            name: '25528222 entity not found',
+            uhUuid: '25528222',
+            uid: '',
+            firstName: '',
+            lastName: '',
+            resultCode: 'SUCCESS',
+            orphan: true,
+        };
+
+        render(<>{flexRender(removeColumn.cell, { row: { original: member } } as never)}</>);
+
+        expect(screen.getByLabelText(/^Remove 25528222 as admin/)).toBeInTheDocument();
+        expect(screen.queryByLabelText(/entity not found/)).not.toBeInTheDocument();
+    });
 });

@@ -740,6 +740,44 @@ describe('GroupingMembersTable', () => {
             ).toBeInTheDocument();
             expect(screen.queryByText('name from where-listed')).not.toBeInTheDocument();
         });
+
+        it('should use the UH number in the row aria-labels for an orphan', async () => {
+            vi.spyOn(Actions, 'getGroupingMembersIsBasis').mockResolvedValue({
+                members: [
+                    { ...orphanMember, orphan: false, whereListed: 'Basis' },
+                    { ...namedMember, whereListed: '' }
+                ]
+            });
+
+            render(
+                <GroupingMembersTable
+                    groupingGroupMembers={membersWithOrphan}
+                    groupingPath={groupingPath}
+                    group="include"
+                />,
+                { wrapper: createMockProviders() }
+            );
+
+            // Wait for is-basis, so the labels are checked after the whereListed merge.
+            expect(await screen.findByText('Yes')).toBeInTheDocument();
+
+            // The orphan is labeled by its UH number.
+            expect(screen.getByRole('checkbox', { name: 'Select row for 25528222' })).toBeInTheDocument();
+            expect(
+                screen.getByRole('button', { name: 'Remove member 25528222 from the include list' })
+            ).toBeInTheDocument();
+
+            // A named member is still labeled by its name.
+            expect(
+                screen.getByRole('checkbox', { name: 'Select row for Testf-iwt-a TestIAM-staff' })
+            ).toBeInTheDocument();
+            expect(
+                screen.getByRole('button', { name: 'Remove member Testf-iwt-a TestIAM-staff from the include list' })
+            ).toBeInTheDocument();
+
+            // No label reads out the placeholder name.
+            expect(screen.queryAllByLabelText(/entity not found/)).toHaveLength(0);
+        });
     });
 
     describe('RemoveMemberModal', () => {

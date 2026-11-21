@@ -5,7 +5,7 @@ import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
 import { faTrashAlt } from '@fortawesome/free-regular-svg-icons';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { message } from '@/lib/messages';
-import { isOrphanMember } from '@/lib/member-utils';
+import { isOrphanMember, memberLabelForAria } from '@/lib/member-utils';
 import OrphanMemberName from '@/components/table/table-element/orphan-member-name';
 
 const AdminTableColumns = (onOpenRemove: (member: GroupingGroupMember) => void): ColumnDef<GroupingGroupMember>[] => [
@@ -68,7 +68,7 @@ const AdminTableColumns = (onOpenRemove: (member: GroupingGroupMember) => void):
                         <button
                             type="button"
                             data-testid={`remove-user-${row.original.uhUuid}`}
-                            aria-label={`Remove ${row.original.name} as admin. There must be at least one admin remaining.`}
+                            aria-label={`Remove ${memberLabelForAria(row.original)} as admin. There must be at least one admin remaining.`}
                             onClick={() => onOpenRemove(row.original)}
                             className="text-red-600 hover:text-red-800 cursor-pointer pt-1"
                         >

@@ -12,7 +12,7 @@ const GroupingMemberUidCell = ({ uid }: { uid: string }) => {
                     N/A{' '}
                     <TooltipProvider>
                         <Tooltip>
-                            <TooltipTrigger>
+                            <TooltipTrigger aria-label="UH Username not available">
                                 <FontAwesomeIcon icon={faQuestionCircle} color="black" />
                             </TooltipTrigger>
                             <TooltipContent className="max-w-48 text-center whitespace-normal" side="right">

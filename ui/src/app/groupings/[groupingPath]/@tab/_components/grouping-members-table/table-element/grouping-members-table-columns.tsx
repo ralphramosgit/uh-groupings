@@ -9,7 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTools } from '@fortawesome/free-solid-svg-icons';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { message } from '@/lib/messages';
-import { isOrphanMember } from '@/lib/member-utils';
+import { isOrphanMember, memberLabelForAria } from '@/lib/member-utils';
 
 const GroupingMembersTableColumns = (
     onOpenManageMemberModal: (manageType: string, membersInList: GroupingGroupMembers['members']) => void = () => {},
@@ -61,7 +61,7 @@ const GroupingMembersTableColumns = (
                                   onChange={(event) => row.toggleSelected(event.target.checked)}
                                   className="w-3 h-3 disabled:opacity-50 disabled:cursor-not-allowed"
                                   disabled={isInputFocused}
-                                  aria-label="Select row"
+                                  aria-label={`Select row for ${memberLabelForAria(row.original)}`}
                               />
                           </span>
                       )
@@ -77,7 +77,6 @@ const GroupingMembersTableColumns = (
                         <GroupingMemberNameCell
                             name={row.getValue('name')}
                             uid={row.getValue('uid')}
-                            // uhUuid={row.getValue('uhUuid')}
                             uhUuid={group !== 'owners' ? row.getValue('uhUuid') : ''}
                             orphan={isOrphanMember(row.original)}
                         />
@@ -93,7 +92,7 @@ const GroupingMembersTableColumns = (
                                                     { ...row.original } as GroupingGroupMembers['members'][number]
                                                 ])
                                             }
-                                            aria-label="Remove Member"
+                                            aria-label={`Remove member ${memberLabelForAria(row.original)} from the ${group} list`}
                                             className="text-red-500 hover:text-red-700"
                                         >
                                             <Trash2Icon className="h-4 w-4" data-testid="remove-member-trash-icon" />
