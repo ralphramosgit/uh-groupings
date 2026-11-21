@@ -696,7 +696,7 @@ describe('GroupingMembersTable', () => {
             members: [orphanMember, namedMember]
         };
 
-        it('should keep the member rows after getGroupingMembersIsBasis resolves', async () => {
+        it.each(['include', 'exclude'] as const)('should keep the %s rows after is-basis resolves', async (group) => {
             // The real response sends orphan as false. A different name proves the rows were not replaced.
             vi.spyOn(Actions, 'getGroupingMembersIsBasis').mockResolvedValue({
                 members: [
@@ -709,7 +709,7 @@ describe('GroupingMembersTable', () => {
                 <GroupingMembersTable
                     groupingGroupMembers={membersWithOrphan}
                     groupingPath={groupingPath}
-                    group="include"
+                    group={group}
                 />,
                 { wrapper: createMockProviders() }
             );
@@ -739,6 +739,23 @@ describe('GroupingMembersTable', () => {
                 screen.getByRole('link', { name: 'Click more info about missing member names' })
             ).toBeInTheDocument();
             expect(screen.queryByText('name from where-listed')).not.toBeInTheDocument();
+        });
+
+        it.each(['basis', 'owners'] as const)('should show N/A for an orphan in the %s tab', (group) => {
+            render(
+                <GroupingMembersTable
+                    groupingGroupMembers={membersWithOrphan}
+                    groupingPath={groupingPath}
+                    group={group}
+                />,
+                { wrapper: createMockProviders() }
+            );
+
+            expect(
+                screen.getByRole('link', { name: 'Click more info about missing member names' })
+            ).toBeInTheDocument();
+            expect(screen.queryByText('25528222 entity not found')).not.toBeInTheDocument();
+            expect(screen.getByText('Testf-iwt-a TestIAM-staff')).toBeInTheDocument();
         });
 
         it('should use the UH number in the row aria-labels for an orphan', async () => {

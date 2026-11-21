@@ -48,6 +48,10 @@ describe('member-utils', () => {
             expect(memberLabelForAria(nameless)).toBe('99997027');
         });
 
+        it('should return an empty string when there is no name or uhUuid', () => {
+            expect(memberLabelForAria({ name: '', uhUuid: '', orphan: false })).toBe('');
+        });
+
         it('should return an empty string for a missing member', () => {
             expect(memberLabelForAria(null)).toBe('');
             expect(memberLabelForAria(undefined)).toBe('');
